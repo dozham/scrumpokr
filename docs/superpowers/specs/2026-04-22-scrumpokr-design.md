@@ -66,8 +66,8 @@ interface Participant {
 
 interface RoundResult {
   story?: string
-  votes: Record<string, Card>   // participantName → card
-  consensus?: Card               // set by host after reveal
+  votes: Record<participantId, Card>  // id → card (name stored in Participant)
+  consensus?: Card                     // auto-set when all voters agree; else undefined
   timestamp: number
 }
 
@@ -101,11 +101,12 @@ All messages are JSON. Client connects via `ws://host/ws?roomId=X&name=Y&role=vo
 
 | Type | Payload | Who |
 |---|---|---|
-| `join` | `{ name, role }` | anyone |
 | `vote` | `{ card: Card }` | voters |
 | `reveal` | — | host only |
 | `reset` | — | host only |
 | `set_story` | `{ title: string }` | host only |
+
+Name and role are passed as query params on the WebSocket upgrade request (`?roomId=X&name=Y&role=voter`), so no explicit `join` message is needed.
 
 **Server → Client (broadcast):**
 
@@ -203,7 +204,7 @@ scrumpokr/
 - Current story (editable by host inline)
 - Participant grid: face-down cards during voting (✓ if voted), revealed values after reveal, spectators shown with eye icon
 - Card picker: current deck's cards, selected card highlighted
-- Stats bar (revealed phase): avg, min, max, consensus indicator when all votes match
+- Stats bar (revealed phase): avg, min, max; consensus value shown automatically when all voters pick the same card
 - Voting history: list of past rounds with story title and consensus/votes
 - Host controls: "Reveal Cards" / "Next Round" button
 
