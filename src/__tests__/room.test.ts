@@ -1,0 +1,187 @@
+import { describe, it, expect } from 'vitest'
+import { Room } from '../lib/room'
+import type { WebSocket } from 'ws'
+
+const mockWs = () => ({}) as WebSocket
+
+describe('Room', () => {
+  it('creates a room with a generated id and voting phase', () => {
+    const room = new Room('fibonacci')
+    expect(room.id).toBeTruthy()
+    expect(room.deck).toBe('fibonacci')
+    expect(room.phase).toBe('voting')
+    expect(room.history).toEqual([])
+  })
+
+  describe('addParticipant', () => {
+    it('first voter becomes host', () => {
+      const room = new Room('fibonacci')
+      const p = room.addParticipant('Alice', 'voter', mockWs())
+      expect(p.isHost).toBe(true)
+    })
+
+    it('second voter is not host', () => {
+      const room = new Room('fibonacci')
+      room.addParticipant('Alice', 'voter', mockWs())
+      const p2 = room.addParticipant('Bob', 'voter', mockWs())
+      expect(p2.isHost).toBe(false)
+    })
+
+    it('spectator is never host even when first to join', () => {
+      const room = new Room('fibonacci')
+      const p = room.addParticipant('Dave', 'spectator', mockWs())
+      expect(p.isHost).toBe(false)
+    })
+
+    it('voter becomes host when spectator joined first', () => {
+      const room = new Room('fibonacci')
+      room.addParticipant('Dave', 'spectator', mockWs())
+      const voter = room.addParticipant('Alice', 'voter', mockWs())
+      expect(voter.isHost).toBe(true)
+    })
+
+    it('stores participant in participants map', () => {
+      const room = new Room('fibonacci')
+      const p = room.addParticipant('Alice', 'voter', mockWs())
+      expect(room.participants.get(p.id)).toBe(p)
+    })
+  })
+
+  describe('removeParticipant', () => {
+    it('removes participant and their vote', () => {
+      const room = new Room('fibonacci')
+      const p = room.addParticipant('Alice', 'voter', mockWs())
+      room.castVote(p.id, 5)
+      room.removeParticipant(p.id)
+      expect(room.participants.has(p.id)).toBe(false)
+      expect(room.votes.has(p.id)).toBe(false)
+    })
+
+    it('promotes next voter when host leaves', () => {
+      const room = new Room('fibonacci')
+      const host = room.addParticipant('Alice', 'voter', mockWs())
+      const bob = room.addParticipant('Bob', 'voter', mockWs())
+      room.removeParticipant(host.id)
+      expect(bob.isHost).toBe(true)
+    })
+
+    it('does not crash when last participant leaves', () => {
+      const room = new Room('fibonacci')
+      const p = room.addParticipant('Alice', 'voter', mockWs())
+      expect(() => room.removeParticipant(p.id)).not.toThrow()
+    })
+  })
+
+  describe('castVote', () => {
+    it('records vote for voter in voting phase', () => {
+      const room = new Room('fibonacci')
+      const p = room.addParticipant('Alice', 'voter', mockWs())
+      room.castVote(p.id, 5)
+      expect(room.votes.get(p.id)).toBe(5)
+    })
+
+    it('ignores vote from spectator', () => {
+      const room = new Room('fibonacci')
+      const p = room.addParticipant('Dave', 'spectator', mockWs())
+      room.castVote(p.id, 5)
+      expect(room.votes.has(p.id)).toBe(false)
+    })
+
+    it('ignores vote when phase is revealed', () => {
+      const room = new Room('fibonacci')
+      const p = room.addParticipant('Alice', 'voter', mockWs())
+      room.reveal()
+      room.castVote(p.id, 5)
+      expect(room.votes.has(p.id)).toBe(false)
+    })
+
+    it('allows changing vote during voting phase', () => {
+      const room = new Room('fibonacci')
+      const p = room.addParticipant('Alice', 'voter', mockWs())
+      room.castVote(p.id, 3)
+      room.castVote(p.id, 5)
+      expect(room.votes.get(p.id)).toBe(5)
+    })
+  })
+
+  describe('reveal', () => {
+    it('sets phase to revealed', () => {
+      const room = new Room('fibonacci')
+      room.reveal()
+      expect(room.phase).toBe('revealed')
+    })
+  })
+
+  describe('reset', () => {
+    it('saves round to history with votes and resets state', () => {
+      const room = new Room('fibonacci')
+      const p = room.addParticipant('Alice', 'voter', mockWs())
+      room.setStory('Story 1')
+      room.castVote(p.id, 5)
+      room.reveal()
+      room.reset()
+      expect(room.history).toHaveLength(1)
+      expect(room.history[0].story).toBe('Story 1')
+      expect(room.history[0].votes[p.id]).toBe(5)
+      expect(room.votes.size).toBe(0)
+      expect(room.phase).toBe('voting')
+      expect(room.currentStory).toBeUndefined()
+    })
+
+    it('sets consensus when all voters vote the same', () => {
+      const room = new Room('fibonacci')
+      const p1 = room.addParticipant('Alice', 'voter', mockWs())
+      const p2 = room.addParticipant('Bob', 'voter', mockWs())
+      room.castVote(p1.id, 5)
+      room.castVote(p2.id, 5)
+      room.reveal()
+      room.reset()
+      expect(room.history[0].consensus).toBe(5)
+    })
+
+    it('consensus is undefined when voters disagree', () => {
+      const room = new Room('fibonacci')
+      const p1 = room.addParticipant('Alice', 'voter', mockWs())
+      const p2 = room.addParticipant('Bob', 'voter', mockWs())
+      room.castVote(p1.id, 3)
+      room.castVote(p2.id, 5)
+      room.reveal()
+      room.reset()
+      expect(room.history[0].consensus).toBeUndefined()
+    })
+
+    it('consensus is undefined when not all voters voted', () => {
+      const room = new Room('fibonacci')
+      const p1 = room.addParticipant('Alice', 'voter', mockWs())
+      room.addParticipant('Bob', 'voter', mockWs())
+      room.castVote(p1.id, 5)
+      room.reveal()
+      room.reset()
+      expect(room.history[0].consensus).toBeUndefined()
+    })
+  })
+
+  describe('toParticipantSnapshots', () => {
+    it('marks hasVoted true for voters who voted', () => {
+      const room = new Room('fibonacci')
+      const p = room.addParticipant('Alice', 'voter', mockWs())
+      room.castVote(p.id, 5)
+      const snapshots = room.toParticipantSnapshots()
+      expect(snapshots.find(s => s.id === p.id)?.hasVoted).toBe(true)
+    })
+
+    it('marks hasVoted false for voters who did not vote', () => {
+      const room = new Room('fibonacci')
+      const p = room.addParticipant('Alice', 'voter', mockWs())
+      const snapshots = room.toParticipantSnapshots()
+      expect(snapshots.find(s => s.id === p.id)?.hasVoted).toBe(false)
+    })
+
+    it('marks hasVoted false for spectators', () => {
+      const room = new Room('fibonacci')
+      const p = room.addParticipant('Dave', 'spectator', mockWs())
+      const snapshots = room.toParticipantSnapshots()
+      expect(snapshots.find(s => s.id === p.id)?.hasVoted).toBe(false)
+    })
+  })
+})
