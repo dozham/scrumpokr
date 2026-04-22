@@ -18,6 +18,10 @@ export function attachWebSocket(server: Server): void {
       ws.close(1008, 'Missing required params')
       return
     }
+    if (name.length > 64) {
+      ws.close(1008, 'Name too long')
+      return
+    }
 
     const room = getRoom(roomId)
     if (!room) {
@@ -45,6 +49,7 @@ export function attachWebSocket(server: Server): void {
 
       switch (msg.type) {
         case 'vote': {
+          if (participant.role !== 'voter' || room.phase !== 'voting') break
           room.castVote(participant.id, msg.card)
           broadcastAll(room, { type: 'vote_cast', participantId: participant.id })
           broadcastRoomStateAll(room)
@@ -61,7 +66,7 @@ export function attachWebSocket(server: Server): void {
           break
         }
         case 'reset': {
-          if (!participant.isHost) return
+          if (!participant.isHost || room.phase !== 'revealed') break
           room.reset()
           broadcastAll(room, { type: 'round_reset' })
           broadcastRoomStateAll(room)
