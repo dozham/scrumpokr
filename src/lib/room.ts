@@ -56,6 +56,7 @@ export class Room {
   }
 
   reset(): void {
+    if (this.phase !== 'revealed') return
     const votesObj: Record<string, Card> = Object.fromEntries(this.votes)
     this.history.push({
       story: this.currentStory,

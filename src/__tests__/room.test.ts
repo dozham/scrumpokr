@@ -113,6 +113,16 @@ describe('Room', () => {
   })
 
   describe('reset', () => {
+    it('is a no-op when phase is voting', () => {
+      const room = new Room('fibonacci')
+      const p = room.addParticipant('Alice', 'voter', mockWs())
+      room.castVote(p.id, 5)
+      room.reset() // called without reveal — should be ignored
+      expect(room.history).toHaveLength(0)
+      expect(room.votes.get(p.id)).toBe(5)
+      expect(room.phase).toBe('voting')
+    })
+
     it('saves round to history with votes and resets state', () => {
       const room = new Room('fibonacci')
       const p = room.addParticipant('Alice', 'voter', mockWs())
