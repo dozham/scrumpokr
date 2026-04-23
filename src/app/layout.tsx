@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/ThemeProvider'
+import { ModernBackground } from '@/components/ModernBackground'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,8 +21,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className={`${inter.className} bg-sky-50 dark:bg-gray-950 text-slate-900 dark:text-white antialiased`}>
-        <ThemeProvider>{children}</ThemeProvider>
+      <body className={`${inter.className} text-slate-900 dark:text-white antialiased`}>
+        <ThemeProvider>
+          <ModernBackground />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )
