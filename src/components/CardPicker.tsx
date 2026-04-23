@@ -10,7 +10,7 @@ interface Props {
 export function CardPicker({ cards, selected, disabled, onSelect }: Props) {
   return (
     <div>
-      <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Your Vote</p>
+      <p className="text-xs font-medium text-[#2a2380]/70 uppercase tracking-wider mb-3">Your Vote</p>
       <div className="flex flex-wrap gap-2">
         {cards.map(card => (
           <button
@@ -19,10 +19,10 @@ export function CardPicker({ cards, selected, disabled, onSelect }: Props) {
             disabled={disabled}
             className={`w-12 h-16 rounded-lg text-sm font-bold border-2 transition-all ${
               selected !== undefined && String(selected) === String(card)
-                ? 'bg-indigo-600 border-indigo-400 text-white scale-105 shadow-lg shadow-indigo-900'
+                ? 'bg-[#ea2a84] text-white border-[#ea2a84] text-white scale-105 shadow-lg shadow-[#ea2a84]/50'
                 : disabled
-                ? 'bg-gray-800 border-gray-700 text-gray-500 cursor-not-allowed'
-                : 'bg-gray-800 border-gray-700 text-gray-200 hover:border-indigo-500 hover:scale-105 cursor-pointer'
+                ? 'bg-[#fff8b3] border-[#2a2380] text-[#2a2380]/60 cursor-not-allowed'
+                : 'bg-[#fff8b3] border-[#2a2380] text-[#2a2380] hover:border-[#ea2a84] hover:scale-105 cursor-pointer'
             }`}
           >
             {String(card)}

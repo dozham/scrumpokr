@@ -58,14 +58,14 @@ export default function HomePage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
-      <div className="w-full max-w-md p-8 bg-gray-900 rounded-2xl shadow-xl border border-gray-800">
-        <h1 className="text-3xl font-bold text-white mb-1">🃏 ScrumPokr</h1>
-        <p className="text-gray-400 mb-8">Real-time planning poker for agile teams.</p>
+    <main className="min-h-screen flex items-center justify-center bg-[#ffeb00] px-4">
+      <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl shadow-[#2a2380]/10 border border-[#2a2380]">
+        <h1 className="text-3xl font-bold text-[#2a2380] mb-1">🃏 ScrumPokr</h1>
+        <p className="text-[#2a2380]/70 mb-8">Real-time planning poker for agile teams.</p>
 
         <form onSubmit={handleCreate} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Your name</label>
+            <label className="block text-sm font-medium text-[#2a2380]/80 mb-1">Your name</label>
             <div className="relative">
               <input
                 type="text"
@@ -73,13 +73,13 @@ export default function HomePage() {
                 onChange={e => setHostName(e.target.value)}
                 placeholder="e.g. Alice"
                 required
-                className="w-full pl-3 pr-10 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full pl-3 pr-10 py-2 bg-[#fff8b3] border border-[#2a2380] rounded-lg text-[#2a2380] placeholder-[#2a2380]/50 focus:outline-none focus:ring-2 focus:ring-[#ea2a84]"
               />
               <button
                 type="button"
                 onClick={handleRandomName}
                 title="Generate random name"
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-white hover:scale-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] transition-all cursor-pointer text-xl leading-none"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[#2a2380]/70 hover:text-[#2a2380] hover:scale-110 hover:drop-shadow-[0_0_8px_rgba(241,91,36,0.5)] transition-all cursor-pointer text-xl leading-none"
               >
                 🎲
               </button>
@@ -87,7 +87,7 @@ export default function HomePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Card deck</label>
+            <label className="block text-sm font-medium text-[#2a2380]/80 mb-2">Card deck</label>
             <div className="grid grid-cols-2 gap-2">
               {DECKS.map(d => (
                 <button
@@ -96,8 +96,8 @@ export default function HomePage() {
                   onClick={() => setDeck(d)}
                   className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
                     deck === d
-                      ? 'bg-indigo-600 border-indigo-500 text-white'
-                      : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500'
+                      ? 'bg-[#ea2a84] text-white border-[#ea2a84] text-white'
+                      : 'bg-[#fff8b3] border-[#2a2380] text-[#2a2380]/80 hover:border-[#ea2a84]'
                   }`}
                 >
                   {DECK_LABELS[d]}
@@ -106,40 +106,40 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 bg-gray-800/50 p-3 rounded-lg border border-gray-700/50">
+          <div className="flex items-center gap-3 bg-[#fff8b3]/50 p-3 rounded-lg border border-[#2a2380]/50">
             <input
               type="checkbox"
               id="hostOnlyReveal"
               checked={hostOnlyReveal}
               onChange={e => setHostOnlyReveal(e.target.checked)}
-              className="w-4 h-4 rounded border-gray-700 text-indigo-600 focus:ring-indigo-500 bg-gray-900"
+              className="w-4 h-4 rounded border-[#2a2380] text-[#ea2a84] focus:ring-[#ea2a84] bg-white"
             />
-            <label htmlFor="hostOnlyReveal" className="text-sm font-medium text-gray-300 cursor-pointer select-none">
+            <label htmlFor="hostOnlyReveal" className="text-sm font-medium text-[#2a2380]/80 cursor-pointer select-none">
               Restrict reveals and resets to host only
             </label>
           </div>
 
           {deck === 'custom' && (
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Card values <span className="text-gray-500">(comma-separated)</span>
+              <label className="block text-sm font-medium text-[#2a2380]/80 mb-1">
+                Card values <span className="text-[#2a2380]/60">(comma-separated)</span>
               </label>
               <input
                 type="text"
                 value={customCards}
                 onChange={e => setCustomCards(e.target.value)}
                 placeholder="e.g. 1, 2, 4, 8, 16"
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 bg-[#fff8b3] border border-[#2a2380] rounded-lg text-[#2a2380] placeholder-[#2a2380]/50 focus:outline-none focus:ring-2 focus:ring-[#ea2a84]"
               />
             </div>
           )}
 
-          {error && <p className="text-red-400 text-sm">{error}</p>}
+          {error && <p className="text-[#f15b24] text-sm">{error}</p>}
 
           <button
             type="submit"
             disabled={creating || !hostName.trim()}
-            className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
+            className="w-full py-3 bg-[#ea2a84] text-white hover:bg-[#d42074] disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
           >
             {creating ? 'Creating…' : 'Create Room'}
           </button>
