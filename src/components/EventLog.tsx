@@ -14,26 +14,26 @@ export function EventLog({ entries }: Props) {
   function getEntryText(entry: EventLogEntry) {
     switch (entry.type) {
       case 'revealed':
-        return <><span className="font-semibold text-white">{entry.actorName}</span> revealed the votes</>
+        return <><span className="font-semibold text-slate-900 dark:text-white">{entry.actorName}</span> revealed the votes</>
       case 'reset':
-        return <><span className="font-semibold text-white">{entry.actorName}</span> started a new round</>
+        return <><span className="font-semibold text-slate-900 dark:text-white">{entry.actorName}</span> started a new round</>
       default:
-        return <><span className="font-semibold text-white">{entry.actorName}</span> performed {entry.type}</>
+        return <><span className="font-semibold text-slate-900 dark:text-white">{entry.actorName}</span> performed {entry.type}</>
     }
   }
 
   return (
-    <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
-      <div className="px-4 py-3 border-b border-gray-800 bg-gray-800/30">
-        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Event Log</h3>
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-sky-200 dark:border-gray-800 overflow-hidden">
+      <div className="px-4 py-3 border-b border-sky-200 dark:border-gray-800 bg-sky-50 dark:bg-gray-800/30">
+        <h3 className="text-xs font-bold text-sky-600 dark:text-gray-400 uppercase tracking-wider">Event Log</h3>
       </div>
-      <div className="divide-y divide-gray-800 max-h-48 overflow-y-auto">
+      <div className="divide-y divide-sky-100 dark:divide-gray-800 max-h-48 overflow-y-auto">
         {[...entries].reverse().map((entry, i) => (
           <div key={i} className="px-4 py-2 flex items-center justify-between gap-4 text-sm">
-            <p className="text-gray-400 truncate">
+            <p className="text-slate-500 dark:text-gray-400 truncate">
               {getEntryText(entry)}
             </p>
-            <time className="text-xs text-gray-500 tabular-nums shrink-0">
+            <time className="text-xs text-slate-400 dark:text-gray-500 tabular-nums shrink-0">
               {formatTimestamp(entry.timestamp)}
             </time>
           </div>
