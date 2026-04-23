@@ -23,8 +23,7 @@ const localStorageMock = (() => {
   }
 })()
 
-// @ts-expect-error - Setting mock localStorage
-global.localStorage = localStorageMock
+global.localStorage = localStorageMock as any
 
 beforeEach(() => {
   localStorageMock.clear()

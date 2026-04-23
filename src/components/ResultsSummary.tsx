@@ -30,7 +30,7 @@ export function ResultsSummary({ votes, participants }: Props) {
       <span className="text-gray-400">Max: <strong className="text-white">{String(max)}</strong></span>
       {consensus !== undefined && (
         <span className="text-green-400 font-semibold ml-auto">
-          ✓ Consensus: {String(consensus)}
+           🎉 Consensus: {String(consensus)}
         </span>
       )}
     </div>

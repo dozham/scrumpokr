@@ -1,7 +1,7 @@
 import type { Card, DeckType } from './types'
 
 const DECK_VALUES: Record<Exclude<DeckType, 'custom'>, Card[]> = {
-  fibonacci: [1, 2, 3, 5, 8, 13, 21, '?', '☕'],
+  fibonacci: [0.5, 1, 2, 3, 5, 8, 13, 21, '?', '☕'],
   'powers-of-2': [1, 2, 4, 8, 16, 32, '?'],
   tshirt: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
 }

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { getStoredIdentity, setStoredIdentity, clearStoredIdentity } from '@/lib/storedIdentity'
 import type { StoredIdentity } from '@/lib/storedIdentity'
+import { getRandomName } from '@/lib/names'
 
 interface Props {
   roomId: string
@@ -31,6 +32,10 @@ export function JoinForm({ roomId }: Props) {
     clearStoredIdentity(roomId)
     setSaved(null)
     setShowForm(true)
+  }
+
+  function handleRandomName() {
+    setName(getRandomName())
   }
 
   function handleJoin(e: React.FormEvent) {
@@ -93,15 +98,25 @@ export function JoinForm({ roomId }: Props) {
         <form onSubmit={handleJoin} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">Your name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder="e.g. Bob"
-              required
-              autoFocus
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="e.g. Bob"
+                required
+                autoFocus
+                className="w-full pl-3 pr-10 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+              <button
+                type="button"
+                onClick={handleRandomName}
+                title="Generate random name"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-white hover:scale-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)] transition-all cursor-pointer text-xl leading-none"
+              >
+                🎲
+              </button>
+            </div>
           </div>
 
           <div>
