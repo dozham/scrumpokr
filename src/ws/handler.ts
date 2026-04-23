@@ -6,7 +6,18 @@ import type { ClientMessage, ServerMessage } from '@/lib/types'
 import type { Room } from '@/lib/room'
 
 export function attachWebSocket(server: Server): void {
-  const wss = new WebSocketServer({ server, path: '/ws' })
+  // Use noServer mode and manually forward only /ws upgrades.
+  // The ws library with `path` option calls abortHandshake(400) on non-matching
+  // paths (e.g. /_next/webpack-hmr), which kills Next.js HMR in dev mode.
+  const wss = new WebSocketServer({ noServer: true })
+
+  server.on('upgrade', (req, socket, head) => {
+    if (req.url?.startsWith('/ws')) {
+      wss.handleUpgrade(req, socket, head, (ws) => {
+        wss.emit('connection', ws, req)
+      })
+    }
+  })
 
   wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
     const url = new URL(req.url!, `http://localhost`)
