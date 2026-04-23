@@ -19,5 +19,5 @@ COPY --from=builder /app/server.ts ./server.ts
 COPY --from=builder /app/tsconfig.json ./tsconfig.json
 COPY --from=builder /app/next.config.ts ./next.config.ts
 COPY --from=builder /app/package.json ./package.json
-EXPOSE 3000
+EXPOSE 8080
 CMD ["npx", "tsx", "server.ts"]
