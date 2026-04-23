@@ -14,8 +14,8 @@ const rooms: Map<string, Room> =
 const ROOM_TTL_MS = 24 * 60 * 60 * 1000
 const CLEANUP_INTERVAL_MS = 5 * 60 * 1000
 
-export function createRoom(deck: DeckType, customCards?: Card[]): Room {
-  const room = new Room(deck, customCards)
+export function createRoom(deck: DeckType, customCards?: Card[], hostOnlyReveal = false): Room {
+  const room = new Room(deck, customCards, hostOnlyReveal)
   rooms.set(room.id, room)
   return room
 }

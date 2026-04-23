@@ -26,6 +26,12 @@ export interface RoundResult {
   timestamp: number
 }
 
+export interface EventLogEntry {
+  type: 'revealed' | 'reset'
+  actorName: string
+  timestamp: number
+}
+
 export type ClientMessage =
   | { type: 'vote'; card: Card }
   | { type: 'reveal' }
@@ -42,6 +48,8 @@ export type ServerMessage =
       participants: ParticipantSnapshot[]
       votes?: Record<string, Card>
       history: RoundResult[]
+      hostOnlyReveal: boolean
+      eventLog: EventLogEntry[]
       yourId: string
     }
   | { type: 'participant_joined'; id: string; name: string; role: 'voter' | 'spectator' }

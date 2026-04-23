@@ -14,6 +14,7 @@ export default function HomePage() {
   const [deck, setDeck] = useState<DeckType>('fibonacci')
   const [customCards, setCustomCards] = useState('')
   const [hostName, setHostName] = useState('')
+  const [hostOnlyReveal, setHostOnlyReveal] = useState(false)
   const [creating, setCreating] = useState(false)
   const [error, setError] = useState('')
 
@@ -40,7 +41,11 @@ export default function HomePage() {
       const res = await fetch('/api/rooms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ deck, customCards: parsedCustom }),
+        body: JSON.stringify({
+          deck,
+          customCards: parsedCustom,
+          hostOnlyReveal,
+        }),
       })
       const { roomId } = await res.json()
       setStoredIdentity(roomId, hostName.trim(), 'voter')
@@ -55,7 +60,7 @@ export default function HomePage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
       <div className="w-full max-w-md p-8 bg-gray-900 rounded-2xl shadow-xl border border-gray-800">
-        <h1 className="text-3xl font-bold text-white mb-1">scrumpokr</h1>
+        <h1 className="text-3xl font-bold text-white mb-1">🃏 ScrumPokr</h1>
         <p className="text-gray-400 mb-8">Real-time planning poker for agile teams.</p>
 
         <form onSubmit={handleCreate} className="space-y-5">
@@ -99,6 +104,19 @@ export default function HomePage() {
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="flex items-center gap-3 bg-gray-800/50 p-3 rounded-lg border border-gray-700/50">
+            <input
+              type="checkbox"
+              id="hostOnlyReveal"
+              checked={hostOnlyReveal}
+              onChange={e => setHostOnlyReveal(e.target.checked)}
+              className="w-4 h-4 rounded border-gray-700 text-indigo-600 focus:ring-indigo-500 bg-gray-900"
+            />
+            <label htmlFor="hostOnlyReveal" className="text-sm font-medium text-gray-300 cursor-pointer select-none">
+              Restrict reveals and resets to host only
+            </label>
           </div>
 
           {deck === 'custom' && (

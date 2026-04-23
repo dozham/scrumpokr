@@ -3,7 +3,7 @@ import { getCards } from '../lib/decks'
 
 describe('getCards', () => {
   it('returns fibonacci cards', () => {
-    expect(getCards('fibonacci')).toEqual([1, 2, 3, 5, 8, 13, 21, '?', '☕'])
+    expect(getCards('fibonacci')).toEqual([0.5, 1, 2, 3, 5, 8, 13, 21, '?', '☕'])
   })
 
   it('returns powers-of-2 cards', () => {

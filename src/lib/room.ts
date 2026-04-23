@@ -1,23 +1,26 @@
 import { nanoid } from 'nanoid'
 import type { WebSocket } from 'ws'
-import type { Card, DeckType, Participant, ParticipantSnapshot, RoundResult } from './types'
+import type { Card, DeckType, Participant, ParticipantSnapshot, RoundResult, EventLogEntry } from './types'
 
 export class Room {
   readonly id: string
   readonly deck: DeckType
   readonly customCards?: Card[]
+  readonly hostOnlyReveal: boolean
   phase: 'voting' | 'revealed' = 'voting'
   currentStory?: string
   votes = new Map<string, Card>()
   participants = new Map<string, Participant>()
   history: RoundResult[] = []
+  eventLog: EventLogEntry[] = []
   readonly createdAt: number
   lastActivityAt: number
 
-  constructor(deck: DeckType, customCards?: Card[]) {
+  constructor(deck: DeckType, customCards?: Card[], hostOnlyReveal = false) {
     this.id = nanoid(8)
     this.deck = deck
     this.customCards = customCards
+    this.hostOnlyReveal = hostOnlyReveal
     this.createdAt = Date.now()
     this.lastActivityAt = Date.now()
   }
@@ -50,12 +53,13 @@ export class Room {
     this.lastActivityAt = Date.now()
   }
 
-  reveal(): void {
+  reveal(actorName: string): void {
     this.phase = 'revealed'
+    this.eventLog.push({ type: 'revealed', actorName, timestamp: Date.now() })
     this.lastActivityAt = Date.now()
   }
 
-  reset(): void {
+  reset(actorName: string): void {
     if (this.phase !== 'revealed') return
     const votesObj: Record<string, Card> = Object.fromEntries(this.votes)
     this.history.push({
@@ -64,6 +68,7 @@ export class Room {
       consensus: this.computeConsensus(),
       timestamp: Date.now(),
     })
+    this.eventLog.push({ type: 'reset', actorName, timestamp: Date.now() })
     this.votes.clear()
     this.phase = 'voting'
     this.currentStory = undefined

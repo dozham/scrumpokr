@@ -67,8 +67,8 @@ export function attachWebSocket(server: Server): void {
           break
         }
         case 'reveal': {
-          if (!participant.isHost) return
-          room.reveal()
+          if (room.hostOnlyReveal && !participant.isHost) return
+          room.reveal(participant.name)
           broadcastAll(room, {
             type: 'votes_revealed',
             votes: Object.fromEntries(room.votes),
@@ -77,8 +77,8 @@ export function attachWebSocket(server: Server): void {
           break
         }
         case 'reset': {
-          if (!participant.isHost || room.phase !== 'revealed') break
-          room.reset()
+          if ((room.hostOnlyReveal && !participant.isHost) || room.phase !== 'revealed') break
+          room.reset(participant.name)
           broadcastAll(room, { type: 'round_reset' })
           broadcastRoomStateAll(room)
           break
@@ -138,6 +138,8 @@ function buildRoomState(room: Room, yourId: string): Extract<ServerMessage, { ty
     participants: room.toParticipantSnapshots(),
     votes: room.phase === 'revealed' ? Object.fromEntries(room.votes) : undefined,
     history: room.history,
+    hostOnlyReveal: room.hostOnlyReveal,
+    eventLog: room.eventLog,
     yourId,
   }
 }

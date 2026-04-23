@@ -16,7 +16,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
-  const { deck, customCards } = body as { deck: unknown; customCards: unknown }
+  const { deck, customCards, hostOnlyReveal } = body as {
+    deck: unknown
+    customCards: unknown
+    hostOnlyReveal: unknown
+  }
 
   if (typeof deck !== 'string' || !VALID_DECKS.includes(deck as DeckType)) {
     return NextResponse.json({ error: 'Invalid deck' }, { status: 400 })
@@ -28,6 +32,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Custom deck requires customCards' }, { status: 400 })
   }
 
-  const room = createRoom(deck as DeckType, customCards as Card[] | undefined)
+  const room = createRoom(
+    deck as DeckType,
+    customCards as Card[] | undefined,
+    !!hostOnlyReveal
+  )
   return NextResponse.json({ roomId: room.id })
 }

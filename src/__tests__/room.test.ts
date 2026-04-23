@@ -90,7 +90,7 @@ describe('Room', () => {
     it('ignores vote when phase is revealed', () => {
       const room = new Room('fibonacci')
       const p = room.addParticipant('Alice', 'voter', mockWs())
-      room.reveal()
+      room.reveal('Alice')
       room.castVote(p.id, 5)
       expect(room.votes.has(p.id)).toBe(false)
     })
@@ -107,7 +107,7 @@ describe('Room', () => {
   describe('reveal', () => {
     it('sets phase to revealed', () => {
       const room = new Room('fibonacci')
-      room.reveal()
+      room.reveal('Alice')
       expect(room.phase).toBe('revealed')
     })
   })
@@ -117,7 +117,7 @@ describe('Room', () => {
       const room = new Room('fibonacci')
       const p = room.addParticipant('Alice', 'voter', mockWs())
       room.castVote(p.id, 5)
-      room.reset() // called without reveal — should be ignored
+      room.reset('Alice') // called without reveal — should be ignored
       expect(room.history).toHaveLength(0)
       expect(room.votes.get(p.id)).toBe(5)
       expect(room.phase).toBe('voting')
@@ -128,8 +128,8 @@ describe('Room', () => {
       const p = room.addParticipant('Alice', 'voter', mockWs())
       room.setStory('Story 1')
       room.castVote(p.id, 5)
-      room.reveal()
-      room.reset()
+      room.reveal('Alice')
+      room.reset('Alice')
       expect(room.history).toHaveLength(1)
       expect(room.history[0].story).toBe('Story 1')
       expect(room.history[0].votes[p.id]).toBe(5)
@@ -144,8 +144,8 @@ describe('Room', () => {
       const p2 = room.addParticipant('Bob', 'voter', mockWs())
       room.castVote(p1.id, 5)
       room.castVote(p2.id, 5)
-      room.reveal()
-      room.reset()
+      room.reveal('Alice')
+      room.reset('Alice')
       expect(room.history[0].consensus).toBe(5)
     })
 
@@ -155,8 +155,8 @@ describe('Room', () => {
       const p2 = room.addParticipant('Bob', 'voter', mockWs())
       room.castVote(p1.id, 3)
       room.castVote(p2.id, 5)
-      room.reveal()
-      room.reset()
+      room.reveal('Alice')
+      room.reset('Alice')
       expect(room.history[0].consensus).toBeUndefined()
     })
 
@@ -165,8 +165,8 @@ describe('Room', () => {
       const p1 = room.addParticipant('Alice', 'voter', mockWs())
       room.addParticipant('Bob', 'voter', mockWs())
       room.castVote(p1.id, 5)
-      room.reveal()
-      room.reset()
+      room.reveal('Alice')
+      room.reset('Alice')
       expect(room.history[0].consensus).toBeUndefined()
     })
   })
@@ -192,6 +192,30 @@ describe('Room', () => {
       const p = room.addParticipant('Dave', 'spectator', mockWs())
       const snapshots = room.toParticipantSnapshots()
       expect(snapshots.find(s => s.id === p.id)?.hasVoted).toBe(false)
+    })
+  })
+
+  describe('eventLog', () => {
+    it('logs reveal event', () => {
+      const room = new Room('fibonacci')
+      room.reveal('Alice')
+      expect(room.eventLog).toHaveLength(1)
+      expect(room.eventLog[0]).toMatchObject({
+        type: 'revealed',
+        actorName: 'Alice',
+      })
+      expect(room.eventLog[0].timestamp).toBeLessThanOrEqual(Date.now())
+    })
+
+    it('logs reset event', () => {
+      const room = new Room('fibonacci')
+      room.reveal('Alice')
+      room.reset('Bob')
+      expect(room.eventLog).toHaveLength(2)
+      expect(room.eventLog[1]).toMatchObject({
+        type: 'reset',
+        actorName: 'Bob',
+      })
     })
   })
 })

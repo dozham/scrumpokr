@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import type { ServerMessage, Card, DeckType, ParticipantSnapshot, RoundResult } from '@/lib/types'
+import type { ServerMessage, Card, DeckType, ParticipantSnapshot, RoundResult, EventLogEntry } from '@/lib/types'
 import { getCards } from '@/lib/decks'
 import { getStoredIdentity } from '@/lib/storedIdentity'
 import { CardPicker } from '@/components/CardPicker'
 import { ParticipantGrid } from '@/components/ParticipantGrid'
 import { ResultsSummary } from '@/components/ResultsSummary'
 import { VotingHistory } from '@/components/VotingHistory'
+import { EventLog } from '@/components/EventLog'
 
 interface RoomState {
   phase: 'voting' | 'revealed'
@@ -18,6 +19,8 @@ interface RoomState {
   participants: ParticipantSnapshot[]
   votes?: Record<string, Card>
   history: RoundResult[]
+  hostOnlyReveal: boolean
+  eventLog: EventLogEntry[]
   yourId: string
 }
 
@@ -112,7 +115,7 @@ export function RoomClient({ roomId }: { roomId: string }) {
   return (
     <div className="min-h-screen bg-gray-950 text-white">
       <header className="border-b border-gray-800 px-6 py-3 flex items-center justify-between">
-        <a href="/" className="font-bold text-lg hover:text-indigo-400 transition-colors">scrumpokr</a>
+        <a href="/" className="font-bold text-lg hover:text-indigo-400 transition-colors">🃏 ScrumPokr</a>
         <div className="flex items-center gap-3 text-sm">
           <span className="text-gray-400">Room: <span className="text-white font-mono">{roomId}</span></span>
           <button
@@ -168,7 +171,7 @@ export function RoomClient({ roomId }: { roomId: string }) {
           </div>
         )}
 
-        {isHost && (
+        {(!roomState.hostOnlyReveal || isHost) && (
           <div>
             {roomState.phase === 'voting' ? (
               <button onClick={handleReveal} className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition-colors">Reveal Cards</button>
@@ -183,6 +186,8 @@ export function RoomClient({ roomId }: { roomId: string }) {
             <VotingHistory history={roomState.history} participantNames={participantNames} />
           </div>
         )}
+
+        <EventLog entries={roomState.eventLog} />
       </main>
     </div>
   )
