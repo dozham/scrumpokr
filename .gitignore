@@ -40,5 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# superpowers internal state
+# personal claude specific configs
 .superpowers/
+.claude/
