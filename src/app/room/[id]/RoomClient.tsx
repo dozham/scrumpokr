@@ -51,6 +51,8 @@ export function RoomClient({ roomId }: { roomId: string }) {
         if (msg.phase === 'revealed' && msg.votes) {
           setMyVote(msg.votes[msg.yourId])
         }
+      } else if (msg.type === 'round_reset') {
+        setMyVote(undefined)
       }
     }
 

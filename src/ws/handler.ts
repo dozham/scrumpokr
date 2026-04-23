@@ -42,7 +42,7 @@ export function attachWebSocket(server: Server): void {
 
     const participant = room.addParticipant(name, role, ws)
 
-    sendRoomState(ws, room, participant.id)
+    broadcastRoomStateAll(room)
     broadcastExcept(room, ws, {
       type: 'participant_joined',
       id: participant.id,
