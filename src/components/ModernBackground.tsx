@@ -61,11 +61,11 @@ export function ModernBackground() {
 
       // Soft gradient colors that match the light/dark themes
       // Orb 1: Follows mouse indirectly (Sky blue)
-      const orb1Color = isDark ? 'rgba(14, 165, 233, 0.15)' : 'rgba(14, 165, 233, 0.25)'
+      const orb1Color = isDark ? 'rgba(14, 165, 233, 0.08)' : 'rgba(14, 165, 233, 0.12)'
       // Orb 2: Drifts naturally (Purple/Violet)
-      const orb2Color = isDark ? 'rgba(139, 92, 246, 0.15)' : 'rgba(139, 92, 246, 0.2)'
+      const orb2Color = isDark ? 'rgba(139, 92, 246, 0.07)' : 'rgba(139, 92, 246, 0.1)'
       // Orb 3: Another drifter to add complexity (Fuchsia/Pink)
-      const orb3Color = isDark ? 'rgba(217, 70, 239, 0.1)' : 'rgba(217, 70, 239, 0.12)'
+      const orb3Color = isDark ? 'rgba(217, 70, 239, 0.05)' : 'rgba(217, 70, 239, 0.07)'
 
       const drawOrb = (x: number, y: number, radius: number, color: string) => {
         const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius)
