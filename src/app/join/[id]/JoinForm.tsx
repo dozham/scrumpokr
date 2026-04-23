@@ -49,7 +49,7 @@ export function JoinForm({ roomId }: Props) {
 
   if (!showForm && saved) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-sky-50 dark:bg-gray-950 px-4">
+      <main className="min-h-screen flex items-center justify-center px-4">
         <div className="fixed top-3 right-4">
           <ThemeToggle />
         </div>
@@ -87,14 +87,14 @@ export function JoinForm({ roomId }: Props) {
 
   if (!showForm) {
     return (
-      <div className="min-h-screen bg-sky-50 dark:bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <p className="text-slate-400 dark:text-gray-400 animate-pulse">Loading…</p>
       </div>
     )
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-sky-50 dark:bg-gray-950 px-4">
+    <main className="min-h-screen flex items-center justify-center px-4">
       <div className="fixed top-3 right-4">
         <ThemeToggle />
       </div>

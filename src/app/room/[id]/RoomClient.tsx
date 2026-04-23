@@ -101,7 +101,7 @@ export function RoomClient({ roomId }: { roomId: string }) {
 
   if (!roomState) {
     return (
-      <div className="min-h-screen bg-sky-50 dark:bg-gray-950 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <p className="text-slate-400 dark:text-gray-400 animate-pulse">Connecting…</p>
       </div>
     )
@@ -114,7 +114,7 @@ export function RoomClient({ roomId }: { roomId: string }) {
   const participantNames = Object.fromEntries(roomState.participants.map(p => [p.id, p.name]))
 
   return (
-    <div className="min-h-screen bg-sky-50 dark:bg-gray-950 text-slate-900 dark:text-white">
+    <div className="min-h-screen text-slate-900 dark:text-white">
       <header className="border-b border-sky-200 dark:border-gray-800 bg-white dark:bg-gray-950 px-6 py-3 flex items-center justify-between">
         <a href="/" className="font-bold text-lg text-slate-800 dark:text-white hover:text-sky-500 dark:hover:text-indigo-400 transition-colors">🃏 ScrumPokr</a>
         <div className="flex items-center gap-3 text-sm">

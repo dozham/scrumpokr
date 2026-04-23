@@ -55,7 +55,7 @@ export default function HomePage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-sky-50 dark:bg-gray-950 px-4">
+    <main className="min-h-screen flex items-center justify-center px-4">
       <div className="fixed top-3 right-4">
         <ThemeToggle />
       </div>
