@@ -12,7 +12,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-theme="dark">
+    <html lang="en" data-theme="dark" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var t=localStorage.getItem('theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)})()`,
+          }}
+        />
+      </head>
       <body className={`${inter.className} bg-sky-50 dark:bg-gray-950 text-slate-900 dark:text-white antialiased`}>
         <ThemeProvider>{children}</ThemeProvider>
       </body>
