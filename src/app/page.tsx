@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { DeckType, Card } from '@/lib/types'
 import { DECK_LABELS } from '@/lib/decks'
+import { setStoredIdentity } from '@/lib/storedIdentity'
 
 const DECKS: DeckType[] = ['fibonacci', 'powers-of-2', 'tshirt', 'custom']
 
@@ -37,8 +38,8 @@ export default function HomePage() {
         body: JSON.stringify({ deck, customCards: parsedCustom }),
       })
       const { roomId } = await res.json()
-      sessionStorage.setItem(`name-${roomId}`, hostName.trim())
-      sessionStorage.setItem(`role-${roomId}`, 'voter')
+      setStoredIdentity(roomId, hostName.trim(), 'voter')
+      sessionStorage.setItem(`active-${roomId}`, '1')
       router.push(`/room/${roomId}`)
     } catch {
       setError('Failed to create room. Try again.')

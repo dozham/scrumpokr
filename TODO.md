@@ -1,0 +1,2 @@
+- [ ] Feature: when the user is entering their name to enter a room, give them the option to choose a random cool name instead (in the context of team and scrum or anything else that is relevant)
+- [ ] Let every participant reveal the votes; but show an event log in the room's event log

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { ServerMessage, Card, DeckType, ParticipantSnapshot, RoundResult } from '@/lib/types'
 import { getCards } from '@/lib/decks'
+import { getStoredIdentity } from '@/lib/storedIdentity'
 import { CardPicker } from '@/components/CardPicker'
 import { ParticipantGrid } from '@/components/ParticipantGrid'
 import { ResultsSummary } from '@/components/ResultsSummary'
@@ -30,12 +31,12 @@ export function RoomClient({ roomId }: { roomId: string }) {
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
-    const name = sessionStorage.getItem(`name-${roomId}`)
-    const role = sessionStorage.getItem(`role-${roomId}`) as 'voter' | 'spectator' | null
-    if (!name || !role) {
+    const identity = getStoredIdentity(roomId)
+    if (!identity || !sessionStorage.getItem(`active-${roomId}`)) {
       router.replace(`/join/${roomId}`)
       return
     }
+    const { name, role } = identity
 
     const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
     const ws = new WebSocket(

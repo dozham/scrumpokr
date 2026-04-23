@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { getStoredIdentity, setStoredIdentity, clearStoredIdentity } from '@/lib/storedIdentity'
+import type { StoredIdentity } from '@/lib/storedIdentity'
 
 interface Props {
   roomId: string
@@ -9,15 +11,77 @@ interface Props {
 
 export function JoinForm({ roomId }: Props) {
   const router = useRouter()
+  const [saved, setSaved] = useState<StoredIdentity | null>(null)
+  const [showForm, setShowForm] = useState(false)
   const [name, setName] = useState('')
   const [role, setRole] = useState<'voter' | 'spectator'>('voter')
+
+  useEffect(() => {
+    const identity = getStoredIdentity(roomId)
+    setSaved(identity)
+    setShowForm(identity === null)
+  }, [roomId])
+
+  function handleRejoin() {
+    sessionStorage.setItem(`active-${roomId}`, '1')
+    router.push(`/room/${roomId}`)
+  }
+
+  function handleNewUser() {
+    clearStoredIdentity(roomId)
+    setSaved(null)
+    setShowForm(true)
+  }
 
   function handleJoin(e: React.FormEvent) {
     e.preventDefault()
     if (!name.trim()) return
-    sessionStorage.setItem(`name-${roomId}`, name.trim())
-    sessionStorage.setItem(`role-${roomId}`, role)
+    setStoredIdentity(roomId, name.trim(), role)
+    sessionStorage.setItem(`active-${roomId}`, '1')
     router.push(`/room/${roomId}`)
+  }
+
+  if (!showForm && saved) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
+        <div className="w-full max-w-sm p-8 bg-gray-900 rounded-2xl shadow-xl border border-gray-800">
+          <h1 className="text-2xl font-bold text-white mb-1">Welcome back!</h1>
+          <p className="text-gray-400 mb-6">
+            You previously joined this room as{' '}
+            <span className="text-white font-semibold">{saved.name}</span>{' '}
+            ({saved.role}).
+          </p>
+          <div className="space-y-3">
+            <button
+              onClick={handleRejoin}
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg transition-colors"
+            >
+              Rejoin as {saved.name}
+            </button>
+            <button
+              onClick={handleNewUser}
+              className="w-full py-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 font-medium rounded-lg transition-colors"
+            >
+              Join as someone new
+            </button>
+            <button
+              onClick={() => router.push('/')}
+              className="w-full py-3 text-gray-500 hover:text-gray-300 text-sm transition-colors"
+            >
+              ← Create a room
+            </button>
+          </div>
+        </div>
+      </main>
+    )
+  }
+
+  if (!showForm) {
+    return (
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <p className="text-gray-400 animate-pulse">Loading…</p>
+      </div>
+    )
   }
 
   return (
