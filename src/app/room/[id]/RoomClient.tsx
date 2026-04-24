@@ -142,6 +142,8 @@ export function RoomClient({ roomId }: { roomId: string }) {
         <a href="/" className="font-bold text-lg text-slate-800 dark:text-white hover:text-sky-500 dark:hover:text-indigo-400 transition-colors">🃏 ScrumPokr</a>
         <div className="flex items-center gap-3 text-sm">
           <span className="text-sky-600 dark:text-gray-400">Room: <span className="text-slate-900 dark:text-white font-mono">{roomId}</span></span>
+          <span className="text-slate-400 dark:text-gray-500 hidden sm:inline">·</span>
+          <span className="text-slate-500 dark:text-gray-400 hidden sm:inline">joined as <span className="text-slate-800 dark:text-white font-medium">{me?.name}</span></span>
           <button
             onClick={copyLink}
             className="px-3 py-1 bg-white dark:bg-gray-800 hover:bg-sky-50 dark:hover:bg-gray-700 rounded-md border border-sky-200 dark:border-gray-700 text-slate-600 dark:text-gray-300 transition-colors text-xs"
