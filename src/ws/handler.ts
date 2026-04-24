@@ -110,7 +110,6 @@ export function attachWebSocket(server: Server): void {
           break
         }
         case 'set_story': {
-          if (!participant.isHost) return
           room.setStory(msg.title)
           broadcastRoomStateAll(room)
           break

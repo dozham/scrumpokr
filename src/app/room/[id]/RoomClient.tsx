@@ -196,7 +196,7 @@ export function RoomClient({ roomId }: { roomId: string }) {
           <p className="text-xs font-medium text-sky-600 dark:text-gray-400 uppercase tracking-wider mb-2">
             Current Story
           </p>
-          {editingStory && isHost ? (
+          {editingStory ? (
             <div className="flex gap-2">
               <input
                 autoFocus
@@ -229,14 +229,12 @@ export function RoomClient({ roomId }: { roomId: string }) {
               >
                 {roomState.currentStory ?? "No story set"}
               </p>
-              {isHost && (
-                <button
-                  onClick={() => setEditingStory(true)}
-                  className="text-xs text-sky-500 dark:text-indigo-400 hover:text-sky-600 dark:hover:text-indigo-300 shrink-0 transition-colors"
-                >
-                  {roomState.currentStory ? "Edit" : "+ Set story"}
-                </button>
-              )}
+              <button
+                onClick={() => setEditingStory(true)}
+                className="text-xs text-sky-500 dark:text-indigo-400 hover:text-sky-600 dark:hover:text-indigo-300 shrink-0 transition-colors"
+              >
+                {roomState.currentStory ? "Edit" : "+ Set story"}
+              </button>
             </div>
           )}
         </div>
