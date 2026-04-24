@@ -11,6 +11,7 @@ export class Room {
   currentStory?: string
   votes = new Map<string, Card>()
   participants = new Map<string, Participant>()
+  tokens = new Map<string, string>()
   history: RoundResult[] = []
   eventLog: EventLogEntry[] = []
   readonly createdAt: number
@@ -25,15 +26,27 @@ export class Room {
     this.lastActivityAt = Date.now()
   }
 
-  addParticipant(name: string, role: 'voter' | 'spectator', ws: WebSocket): Participant {
+  addParticipant(name: string, role: 'voter' | 'spectator', ws: WebSocket, token: string): Participant {
     const participant: Participant = {
       id: nanoid(8),
       name,
       role,
       isHost: role === 'voter' && !this.hasHost(),
       ws,
+      token,
     }
     this.participants.set(participant.id, participant)
+    this.tokens.set(token, participant.id)
+    this.lastActivityAt = Date.now()
+    return participant
+  }
+
+  reconnectParticipant(token: string, ws: WebSocket): Participant | null {
+    const participantId = this.tokens.get(token)
+    if (!participantId) return null
+    const participant = this.participants.get(participantId)
+    if (!participant) return null
+    participant.ws = ws
     this.lastActivityAt = Date.now()
     return participant
   }
@@ -42,6 +55,7 @@ export class Room {
     const p = this.participants.get(id)
     this.participants.delete(id)
     this.votes.delete(id)
+    if (p) this.tokens.delete(p.token)
     this.lastActivityAt = Date.now()
     if (p?.isHost) this.promoteNextHost()
   }

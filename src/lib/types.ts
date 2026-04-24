@@ -9,6 +9,7 @@ export interface Participant {
   role: 'voter' | 'spectator'
   isHost: boolean
   ws: WebSocket
+  token: string
 }
 
 export interface ParticipantSnapshot {
