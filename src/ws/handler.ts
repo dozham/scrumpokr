@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid'
 import { WebSocketServer, WebSocket } from 'ws'
 import type { Server } from 'http'
 import type { IncomingMessage } from 'http'
@@ -37,9 +36,9 @@ export function attachWebSocket(server: Server): void {
     const roomId = url.searchParams.get('roomId')
     const name = url.searchParams.get('name')?.trim()
     const role = url.searchParams.get('role') as 'voter' | 'spectator' | null
-    const token = url.searchParams.get('token') ?? nanoid(16)
+    const token = url.searchParams.get('token')
 
-    if (!roomId || !name || !role || !['voter', 'spectator'].includes(role)) {
+    if (!roomId || !name || !role || !token || !['voter', 'spectator'].includes(role)) {
       ws.close(1008, 'Missing required params')
       return
     }
@@ -54,8 +53,15 @@ export function attachWebSocket(server: Server): void {
       return
     }
 
+    const existingId = room.tokens.get(token)
+    const previousWs = existingId ? room.participants.get(existingId)?.ws ?? null : null
+
     const reconnected = room.reconnectParticipant(token, ws)
     const participant = reconnected ?? room.addParticipant(name, role, ws, token)
+
+    if (previousWs && previousWs !== ws) {
+      previousWs.close(1000, 'replaced by reconnect')
+    }
 
     alive.add(ws)
     ws.on('pong', () => alive.add(ws))

@@ -54,7 +54,6 @@ export type ServerMessage =
       yourId: string
     }
   | { type: 'participant_joined'; id: string; name: string; role: 'voter' | 'spectator' }
-  | { type: 'participant_left'; id: string }
   | { type: 'vote_cast'; participantId: string }
   | { type: 'votes_revealed'; votes: Record<string, Card> }
   | { type: 'round_reset' }
