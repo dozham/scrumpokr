@@ -43,3 +43,6 @@ next-env.d.ts
 # personal claude specific configs
 .superpowers/
 .claude/
+
+# git worktrees
+.worktrees/
