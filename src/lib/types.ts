@@ -24,6 +24,7 @@ export interface RoundResult {
   story?: string
   votes: Record<string, Card>
   consensus?: Card
+  verdictSource?: 'natural' | 'selected' | 'none'
   timestamp: number
 }
 
@@ -38,6 +39,7 @@ export type ClientMessage =
   | { type: 'reveal' }
   | { type: 'reset' }
   | { type: 'set_story'; title: string }
+  | { type: 'select_verdict'; card: Card | 'NO_CONSENSUS' }
 
 export type ServerMessage =
   | {
@@ -52,6 +54,7 @@ export type ServerMessage =
       hostOnlyReveal: boolean
       eventLog: EventLogEntry[]
       yourId: string
+      selectedVerdict?: Card | 'NO_CONSENSUS'
     }
   | { type: 'participant_joined'; id: string; name: string; role: 'voter' | 'spectator' }
   | { type: 'vote_cast'; participantId: string }
