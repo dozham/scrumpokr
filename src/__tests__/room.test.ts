@@ -258,4 +258,100 @@ describe('Room', () => {
       })
     })
   })
+
+  describe('selectVerdict', () => {
+    it('stores a card verdict', () => {
+      const room = new Room('fibonacci')
+      room.selectVerdict(5)
+      expect(room.selectedVerdict).toBe(5)
+    })
+
+    it('stores NO_CONSENSUS', () => {
+      const room = new Room('fibonacci')
+      room.selectVerdict('NO_CONSENSUS')
+      expect(room.selectedVerdict).toBe('NO_CONSENSUS')
+    })
+
+    it('can be overwritten', () => {
+      const room = new Room('fibonacci')
+      room.selectVerdict(3)
+      room.selectVerdict(8)
+      expect(room.selectedVerdict).toBe(8)
+    })
+  })
+
+  describe('reset() verdictSource', () => {
+    it('records verdictSource natural when all voters agree', () => {
+      const room = new Room('fibonacci')
+      const p1 = room.addParticipant('Alice', 'voter', mockWs(), 'tok-1')
+      const p2 = room.addParticipant('Bob', 'voter', mockWs(), 'tok-2')
+      room.castVote(p1.id, 5)
+      room.castVote(p2.id, 5)
+      room.reveal('Alice')
+      room.reset('Alice')
+      expect(room.history[0].verdictSource).toBe('natural')
+      expect(room.history[0].consensus).toBe(5)
+    })
+
+    it('records verdictSource selected when selectedVerdict is a Card and no natural consensus', () => {
+      const room = new Room('fibonacci')
+      const p1 = room.addParticipant('Alice', 'voter', mockWs(), 'tok-1')
+      const p2 = room.addParticipant('Bob', 'voter', mockWs(), 'tok-2')
+      room.castVote(p1.id, 3)
+      room.castVote(p2.id, 5)
+      room.reveal('Alice')
+      room.selectVerdict(5)
+      room.reset('Alice')
+      expect(room.history[0].verdictSource).toBe('selected')
+      expect(room.history[0].consensus).toBe(5)
+    })
+
+    it('records verdictSource none when selectedVerdict is NO_CONSENSUS', () => {
+      const room = new Room('fibonacci')
+      const p1 = room.addParticipant('Alice', 'voter', mockWs(), 'tok-1')
+      const p2 = room.addParticipant('Bob', 'voter', mockWs(), 'tok-2')
+      room.castVote(p1.id, 3)
+      room.castVote(p2.id, 5)
+      room.reveal('Alice')
+      room.selectVerdict('NO_CONSENSUS')
+      room.reset('Alice')
+      expect(room.history[0].verdictSource).toBe('none')
+      expect(room.history[0].consensus).toBeUndefined()
+    })
+
+    it('records verdictSource none when no selectedVerdict and voters disagree', () => {
+      const room = new Room('fibonacci')
+      const p1 = room.addParticipant('Alice', 'voter', mockWs(), 'tok-1')
+      const p2 = room.addParticipant('Bob', 'voter', mockWs(), 'tok-2')
+      room.castVote(p1.id, 3)
+      room.castVote(p2.id, 5)
+      room.reveal('Alice')
+      room.reset('Alice')
+      expect(room.history[0].verdictSource).toBe('none')
+      expect(room.history[0].consensus).toBeUndefined()
+    })
+
+    it('clears selectedVerdict after reset', () => {
+      const room = new Room('fibonacci')
+      const p = room.addParticipant('Alice', 'voter', mockWs(), 'tok-1')
+      room.castVote(p.id, 5)
+      room.reveal('Alice')
+      room.selectVerdict(5)
+      room.reset('Alice')
+      expect(room.selectedVerdict).toBeUndefined()
+    })
+
+    it('natural consensus takes precedence over selectedVerdict', () => {
+      const room = new Room('fibonacci')
+      const p1 = room.addParticipant('Alice', 'voter', mockWs(), 'tok-1')
+      const p2 = room.addParticipant('Bob', 'voter', mockWs(), 'tok-2')
+      room.castVote(p1.id, 5)
+      room.castVote(p2.id, 5)
+      room.reveal('Alice')
+      room.selectVerdict(3)
+      room.reset('Alice')
+      expect(room.history[0].verdictSource).toBe('natural')
+      expect(room.history[0].consensus).toBe(5)
+    })
+  })
 })

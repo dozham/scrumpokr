@@ -9,6 +9,7 @@ export class Room {
   readonly hostOnlyReveal: boolean
   phase: 'voting' | 'revealed' = 'voting'
   currentStory?: string
+  selectedVerdict: Card | 'NO_CONSENSUS' | undefined
   votes = new Map<string, Card>()
   participants = new Map<string, Participant>()
   tokens = new Map<string, string>()
@@ -73,19 +74,42 @@ export class Room {
     this.lastActivityAt = Date.now()
   }
 
+  selectVerdict(card: Card | 'NO_CONSENSUS'): void {
+    this.selectedVerdict = card
+    this.lastActivityAt = Date.now()
+  }
+
   reset(actorName: string): void {
     if (this.phase !== 'revealed') return
     const votesObj: Record<string, Card> = Object.fromEntries(this.votes)
+    const naturalConsensus = this.computeConsensus()
+
+    let consensus: Card | undefined
+    let verdictSource: 'natural' | 'selected' | 'none'
+
+    if (naturalConsensus !== undefined) {
+      consensus = naturalConsensus
+      verdictSource = 'natural'
+    } else if (this.selectedVerdict !== undefined && this.selectedVerdict !== 'NO_CONSENSUS') {
+      consensus = this.selectedVerdict
+      verdictSource = 'selected'
+    } else {
+      consensus = undefined
+      verdictSource = 'none'
+    }
+
     this.history.push({
       story: this.currentStory,
       votes: votesObj,
-      consensus: this.computeConsensus(),
+      consensus,
+      verdictSource,
       timestamp: Date.now(),
     })
     this.eventLog.push({ type: 'reset', actorName, timestamp: Date.now() })
     this.votes.clear()
     this.phase = 'voting'
     this.currentStory = undefined
+    this.selectedVerdict = undefined
     this.lastActivityAt = Date.now()
   }
 
