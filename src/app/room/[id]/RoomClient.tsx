@@ -30,6 +30,8 @@ export function RoomClient({ roomId }: { roomId: string }) {
   const wsRef = useRef<WebSocket | null>(null)
   const [roomState, setRoomState] = useState<RoomState | null>(null)
   const [myVote, setMyVote] = useState<Card | undefined>()
+  const myVoteRef = useRef<Card | undefined>(undefined)
+  myVoteRef.current = myVote
   const [story, setStory] = useState('')
   const [editingStory, setEditingStory] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -46,6 +48,7 @@ export function RoomClient({ roomId }: { roomId: string }) {
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null
 
     function connect() {
+      let voteRestored = false
       const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
       const ws = new WebSocket(
         `${proto}://${window.location.host}/ws?roomId=${roomId}&name=${encodeURIComponent(name)}&role=${role}`
@@ -55,6 +58,10 @@ export function RoomClient({ roomId }: { roomId: string }) {
       ws.onmessage = (event: MessageEvent) => {
         const msg = JSON.parse(event.data as string) as ServerMessage
         if (msg.type === 'room_state') {
+          if (!voteRestored && msg.phase === 'voting' && myVoteRef.current !== undefined) {
+            voteRestored = true
+            ws.send(JSON.stringify({ type: 'vote', card: myVoteRef.current }))
+          }
           setRoomState(msg)
           setStory(msg.currentStory ?? '')
           if (msg.phase === 'revealed' && msg.votes) {
