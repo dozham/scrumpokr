@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { ServerMessage, Card, DeckType, ParticipantSnapshot, RoundResult, EventLogEntry } from '@/lib/types'
 import { getCards } from '@/lib/decks'
-import { getStoredIdentity } from '@/lib/storedIdentity'
+import { getStoredIdentity, getOrCreateParticipantToken } from '@/lib/storedIdentity'
 import { CardPicker } from '@/components/CardPicker'
 import { ParticipantGrid } from '@/components/ParticipantGrid'
 import { ResultsSummary } from '@/components/ResultsSummary'
@@ -43,6 +43,7 @@ export function RoomClient({ roomId }: { roomId: string }) {
       return
     }
     const { name, role } = identity
+    const token = getOrCreateParticipantToken(roomId)
 
     let closed = false
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null
@@ -51,7 +52,7 @@ export function RoomClient({ roomId }: { roomId: string }) {
       let voteRestored = false
       const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
       const ws = new WebSocket(
-        `${proto}://${window.location.host}/ws?roomId=${roomId}&name=${encodeURIComponent(name)}&role=${role}`
+        `${proto}://${window.location.host}/ws?roomId=${roomId}&name=${encodeURIComponent(name)}&role=${role}&token=${token}`
       )
       wsRef.current = ws
 

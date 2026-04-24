@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import type { DeckType, Card } from '@/lib/types'
 import { DECK_LABELS } from '@/lib/decks'
-import { setStoredIdentity } from '@/lib/storedIdentity'
+import { setStoredIdentity, getOrCreateParticipantToken } from '@/lib/storedIdentity'
 import { getRandomName } from '@/lib/names'
 import { ThemeToggle } from '@/components/ThemeToggle'
 
@@ -46,6 +46,7 @@ export default function HomePage() {
       })
       const { roomId } = await res.json()
       setStoredIdentity(roomId, hostName.trim(), 'voter')
+      getOrCreateParticipantToken(roomId)
       sessionStorage.setItem(`active-${roomId}`, '1')
       router.push(`/room/${roomId}`)
     } catch {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { getStoredIdentity, setStoredIdentity, clearStoredIdentity } from '@/lib/storedIdentity'
+import { getStoredIdentity, setStoredIdentity, clearStoredIdentity, getOrCreateParticipantToken } from '@/lib/storedIdentity'
 import type { StoredIdentity } from '@/lib/storedIdentity'
 import { getRandomName } from '@/lib/names'
 import { ThemeToggle } from '@/components/ThemeToggle'
@@ -43,6 +43,7 @@ export function JoinForm({ roomId }: Props) {
     e.preventDefault()
     if (!name.trim()) return
     setStoredIdentity(roomId, name.trim(), role)
+    getOrCreateParticipantToken(roomId)
     sessionStorage.setItem(`active-${roomId}`, '1')
     router.push(`/room/${roomId}`)
   }
