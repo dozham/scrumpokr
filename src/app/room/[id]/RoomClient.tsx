@@ -42,32 +42,47 @@ export function RoomClient({ roomId }: { roomId: string }) {
     }
     const { name, role } = identity
 
-    const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
-    const ws = new WebSocket(
-      `${proto}://${window.location.host}/ws?roomId=${roomId}&name=${encodeURIComponent(name)}&role=${role}`
-    )
-    wsRef.current = ws
+    let closed = false
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null
 
-    ws.onmessage = (event: MessageEvent) => {
-      const msg = JSON.parse(event.data as string) as ServerMessage
-      if (msg.type === 'room_state') {
-        setRoomState(msg)
-        setStory(msg.currentStory ?? '')
-        if (msg.phase === 'revealed' && msg.votes) {
-          setMyVote(msg.votes[msg.yourId])
+    function connect() {
+      const proto = window.location.protocol === 'https:' ? 'wss' : 'ws'
+      const ws = new WebSocket(
+        `${proto}://${window.location.host}/ws?roomId=${roomId}&name=${encodeURIComponent(name)}&role=${role}`
+      )
+      wsRef.current = ws
+
+      ws.onmessage = (event: MessageEvent) => {
+        const msg = JSON.parse(event.data as string) as ServerMessage
+        if (msg.type === 'room_state') {
+          setRoomState(msg)
+          setStory(msg.currentStory ?? '')
+          if (msg.phase === 'revealed' && msg.votes) {
+            setMyVote(msg.votes[msg.yourId])
+          }
+        } else if (msg.type === 'round_reset') {
+          setMyVote(undefined)
         }
-      } else if (msg.type === 'round_reset') {
-        setMyVote(undefined)
+      }
+
+      ws.onclose = (e) => {
+        if (e.code === 1008 && e.reason === 'Room not found') {
+          router.replace('/')
+          return
+        }
+        if (!closed) {
+          reconnectTimer = setTimeout(connect, 2000)
+        }
       }
     }
 
-    ws.onclose = (e) => {
-      if (e.code === 1008 && e.reason === 'Room not found') {
-        router.replace('/')
-      }
-    }
+    connect()
 
-    return () => ws.close()
+    return () => {
+      closed = true
+      if (reconnectTimer) clearTimeout(reconnectTimer)
+      wsRef.current?.close()
+    }
   }, [roomId, router])
 
   function sendMsg(msg: object) {

@@ -5,11 +5,30 @@ import { getRoom } from '@/lib/registry'
 import type { ClientMessage, ServerMessage } from '@/lib/types'
 import type { Room } from '@/lib/room'
 
+const HEARTBEAT_INTERVAL_MS = 25_000
+
 export function attachWebSocket(server: Server): void {
   // Use noServer mode and manually forward only /ws upgrades.
   // The ws library with `path` option calls abortHandshake(400) on non-matching
   // paths (e.g. /_next/webpack-hmr), which kills Next.js HMR in dev mode.
   const wss = new WebSocketServer({ noServer: true })
+
+  // Track which clients responded to the last ping. Clients that miss a full
+  // interval are terminated — they are silently dead (proxy closed the TCP
+  // connection without a FIN). 25 s keeps us safely under the common 60 s
+  // proxy idle timeout.
+  const alive = new Set<WebSocket>()
+  const heartbeatInterval = setInterval(() => {
+    for (const client of wss.clients) {
+      if (!alive.has(client)) {
+        client.terminate()
+        continue
+      }
+      alive.delete(client)
+      client.ping()
+    }
+  }, HEARTBEAT_INTERVAL_MS)
+  wss.on('close', () => clearInterval(heartbeatInterval))
 
   server.on('upgrade', (req, socket, head) => {
     if (req.url?.startsWith('/ws')) {
@@ -41,6 +60,8 @@ export function attachWebSocket(server: Server): void {
     }
 
     const participant = room.addParticipant(name, role, ws)
+    alive.add(ws)
+    ws.on('pong', () => alive.add(ws))
 
     broadcastRoomStateAll(room)
     broadcastExcept(room, ws, {
@@ -93,6 +114,7 @@ export function attachWebSocket(server: Server): void {
     })
 
     ws.on('close', () => {
+      alive.delete(ws)
       room.removeParticipant(participant.id)
       broadcastAll(room, { type: 'participant_left', id: participant.id })
       broadcastRoomStateAll(room)
