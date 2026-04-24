@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid'
 import { WebSocketServer, WebSocket } from 'ws'
 import type { Server } from 'http'
 import type { IncomingMessage } from 'http'
@@ -8,15 +9,8 @@ import type { Room } from '@/lib/room'
 const HEARTBEAT_INTERVAL_MS = 25_000
 
 export function attachWebSocket(server: Server): void {
-  // Use noServer mode and manually forward only /ws upgrades.
-  // The ws library with `path` option calls abortHandshake(400) on non-matching
-  // paths (e.g. /_next/webpack-hmr), which kills Next.js HMR in dev mode.
   const wss = new WebSocketServer({ noServer: true })
 
-  // Track which clients responded to the last ping. Clients that miss a full
-  // interval are terminated — they are silently dead (proxy closed the TCP
-  // connection without a FIN). 25 s keeps us safely under the common 60 s
-  // proxy idle timeout.
   const alive = new Set<WebSocket>()
   const heartbeatInterval = setInterval(() => {
     for (const client of wss.clients) {
@@ -43,6 +37,7 @@ export function attachWebSocket(server: Server): void {
     const roomId = url.searchParams.get('roomId')
     const name = url.searchParams.get('name')?.trim()
     const role = url.searchParams.get('role') as 'voter' | 'spectator' | null
+    const token = url.searchParams.get('token') ?? nanoid(16)
 
     if (!roomId || !name || !role || !['voter', 'spectator'].includes(role)) {
       ws.close(1008, 'Missing required params')
@@ -59,17 +54,21 @@ export function attachWebSocket(server: Server): void {
       return
     }
 
-    const participant = room.addParticipant(name, role, ws)
+    const reconnected = room.reconnectParticipant(token, ws)
+    const participant = reconnected ?? room.addParticipant(name, role, ws, token)
+
     alive.add(ws)
     ws.on('pong', () => alive.add(ws))
 
     broadcastRoomStateAll(room)
-    broadcastExcept(room, ws, {
-      type: 'participant_joined',
-      id: participant.id,
-      name: participant.name,
-      role: participant.role,
-    })
+    if (!reconnected) {
+      broadcastExcept(room, ws, {
+        type: 'participant_joined',
+        id: participant.id,
+        name: participant.name,
+        role: participant.role,
+      })
+    }
 
     ws.on('message', (data) => {
       let msg: ClientMessage
@@ -115,9 +114,6 @@ export function attachWebSocket(server: Server): void {
 
     ws.on('close', () => {
       alive.delete(ws)
-      room.removeParticipant(participant.id)
-      broadcastAll(room, { type: 'participant_left', id: participant.id })
-      broadcastRoomStateAll(room)
     })
   })
 }
@@ -138,10 +134,6 @@ function broadcastExcept(room: Room, exclude: WebSocket, msg: ServerMessage): vo
   for (const p of room.participants.values()) {
     if (p.ws !== exclude) send(p.ws, msg)
   }
-}
-
-function sendRoomState(ws: WebSocket, room: Room, yourId: string): void {
-  send(ws, buildRoomState(room, yourId))
 }
 
 function broadcastRoomStateAll(room: Room): void {
