@@ -1,3 +1,5 @@
+import { nanoid } from 'nanoid'
+
 export interface StoredIdentity {
   name: string
   role: 'voter' | 'spectator'
@@ -18,4 +20,13 @@ export function setStoredIdentity(roomId: string, name: string, role: 'voter' | 
 export function clearStoredIdentity(roomId: string): void {
   localStorage.removeItem(`name-${roomId}`)
   localStorage.removeItem(`role-${roomId}`)
+  localStorage.removeItem(`token-${roomId}`)
+}
+
+export function getOrCreateParticipantToken(roomId: string): string {
+  const existing = localStorage.getItem(`token-${roomId}`)
+  if (existing) return existing
+  const token = nanoid(16)
+  localStorage.setItem(`token-${roomId}`, token)
+  return token
 }

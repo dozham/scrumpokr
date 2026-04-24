@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { getStoredIdentity, setStoredIdentity, clearStoredIdentity } from '../lib/storedIdentity'
+import { getStoredIdentity, setStoredIdentity, clearStoredIdentity, getOrCreateParticipantToken } from '../lib/storedIdentity'
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -76,5 +76,35 @@ describe('clearStoredIdentity', () => {
 
   it('does not throw when keys do not exist', () => {
     expect(() => clearStoredIdentity('abc')).not.toThrow()
+  })
+})
+
+describe('getOrCreateParticipantToken', () => {
+  it('creates and stores a token on first call', () => {
+    const token = getOrCreateParticipantToken('abc')
+    expect(token).toBeTruthy()
+    expect(localStorage.getItem('token-abc')).toBe(token)
+  })
+
+  it('returns the same token on subsequent calls', () => {
+    const token1 = getOrCreateParticipantToken('abc')
+    const token2 = getOrCreateParticipantToken('abc')
+    expect(token1).toBe(token2)
+  })
+
+  it('returns different tokens for different rooms', () => {
+    const t1 = getOrCreateParticipantToken('room-a')
+    const t2 = getOrCreateParticipantToken('room-b')
+    expect(t1).not.toBe(t2)
+  })
+})
+
+describe('clearStoredIdentity (token)', () => {
+  it('also removes the participant token', () => {
+    localStorage.setItem('name-abc', 'Alice')
+    localStorage.setItem('role-abc', 'voter')
+    localStorage.setItem('token-abc', 'some-token')
+    clearStoredIdentity('abc')
+    expect(localStorage.getItem('token-abc')).toBeNull()
   })
 })
