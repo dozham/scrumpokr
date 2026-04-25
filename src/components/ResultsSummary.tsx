@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Card, ParticipantSnapshot } from '@/lib/types'
 
 interface Props {
@@ -12,6 +12,7 @@ interface Props {
 
 export function ResultsSummary({ votes, participants, selectedVerdict, onSelectVerdict }: Props) {
   const [picking, setPicking] = useState(false)
+  useEffect(() => { setPicking(false) }, [selectedVerdict])
 
   const voterIds = participants.filter(p => p.role === 'voter').map(p => p.id)
   const allVoterCards = voterIds.map(id => votes[id]).filter((c): c is Card => c !== undefined)
