@@ -12,10 +12,10 @@ interface Props {
   participants: ParticipantSnapshot[]
   votes?: Record<string, Card>
   phase: 'voting' | 'revealed'
-  yourId?: string
+  yourId: string
 }
 
-export function ParticipantGrid({ participants, votes, phase, yourId = '' }: Props) {
+export function ParticipantGrid({ participants, votes, phase, yourId }: Props) {
   return (
     <div>
       <p className="text-xs font-medium text-sky-600 dark:text-gray-400 uppercase tracking-wider mb-3">
