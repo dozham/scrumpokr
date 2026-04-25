@@ -114,6 +114,12 @@ export function attachWebSocket(server: Server): void {
           broadcastRoomStateAll(room)
           break
         }
+        case 'select_verdict': {
+          if (room.phase !== 'revealed') break
+          room.selectVerdict(msg.card)
+          broadcastRoomStateAll(room)
+          break
+        }
       }
     })
 
@@ -160,5 +166,6 @@ function buildRoomState(room: Room, yourId: string): Extract<ServerMessage, { ty
     hostOnlyReveal: room.hostOnlyReveal,
     eventLog: room.eventLog,
     yourId,
+    selectedVerdict: room.selectedVerdict,
   }
 }
