@@ -33,6 +33,7 @@ interface RoomState {
   hostOnlyReveal: boolean;
   eventLog: EventLogEntry[];
   yourId: string;
+  selectedVerdict?: Card | "NO_CONSENSUS";
 }
 
 export function RoomClient({ roomId }: { roomId: string }) {
@@ -130,6 +131,10 @@ export function RoomClient({ roomId }: { roomId: string }) {
   function handleSetStory() {
     sendMsg({ type: "set_story", title: story });
     setEditingStory(false);
+  }
+
+  function handleSelectVerdict(v: Card | "NO_CONSENSUS") {
+    sendMsg({ type: "select_verdict", card: v });
   }
 
   function copyLink() {
@@ -244,6 +249,7 @@ export function RoomClient({ roomId }: { roomId: string }) {
             participants={roomState.participants}
             votes={roomState.votes}
             phase={roomState.phase}
+            yourId={roomState.yourId}
           />
         </div>
 
@@ -251,6 +257,8 @@ export function RoomClient({ roomId }: { roomId: string }) {
           <ResultsSummary
             votes={roomState.votes}
             participants={roomState.participants}
+            selectedVerdict={roomState.selectedVerdict}
+            onSelectVerdict={handleSelectVerdict}
           />
         )}
 
