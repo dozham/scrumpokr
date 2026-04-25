@@ -7,10 +7,10 @@ interface Props {
   votes: Record<string, Card>
   participants: ParticipantSnapshot[]
   selectedVerdict?: Card | 'NO_CONSENSUS'
-  onSelectVerdict: (v: Card | 'NO_CONSENSUS') => void
+  onSelectVerdict?: (v: Card | 'NO_CONSENSUS') => void
 }
 
-export function ResultsSummary({ votes, participants, selectedVerdict, onSelectVerdict }: Props) {
+export function ResultsSummary({ votes, participants, selectedVerdict, onSelectVerdict = () => {} }: Props) {
   const [picking, setPicking] = useState(false)
 
   const voterIds = participants.filter(p => p.role === 'voter').map(p => p.id)
