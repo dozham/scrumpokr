@@ -10,6 +10,7 @@ interface Props {
 
 function verdictSuffix(round: RoundResult): string {
   const { verdictSource, consensus } = round
+  if (verdictSource === 'none') return ' · ✗ No consensus'
   if (verdictSource === 'natural' || (verdictSource === undefined && consensus !== undefined)) {
     return ` · 🎉 ${String(consensus)}`
   }
@@ -19,14 +20,14 @@ function verdictSuffix(round: RoundResult): string {
   return ' · ✗ No consensus'
 }
 
+function formatTimestamp(ts: number) {
+  return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
 export function EventLog({ entries, history }: Props) {
   const [isOpen, setIsOpen] = useState(false)
 
   if (entries.length === 0) return null
-
-  function formatTimestamp(ts: number) {
-    return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  }
 
   // Correlate reset events (reversed) to history entries.
   // The Nth reset encountered in reverse = history[history.length - 1 - N].
@@ -45,12 +46,13 @@ export function EventLog({ entries, history }: Props) {
   return (
     <div className="bg-white dark:bg-gray-900 rounded-xl border border-sky-200 dark:border-gray-800 overflow-hidden">
       <button
+        aria-expanded={isOpen}
         onClick={() => setIsOpen(o => !o)}
-        className="w-full px-4 py-3 border-b border-sky-200 dark:border-gray-800 bg-sky-50 dark:bg-gray-800/30 flex items-center justify-between hover:bg-sky-100 dark:hover:bg-gray-800/50 transition-colors"
+        className={`w-full px-4 py-3 bg-sky-50 dark:bg-gray-800/30 flex items-center justify-between hover:bg-sky-100 dark:hover:bg-gray-800/50 transition-colors${isOpen ? ' border-b border-sky-200 dark:border-gray-800' : ''}`}
       >
-        <h3 className="text-xs font-bold text-sky-600 dark:text-gray-400 uppercase tracking-wider">
+        <span className="text-xs font-bold text-sky-600 dark:text-gray-400 uppercase tracking-wider">
           Event Log ({entries.length})
-        </h3>
+        </span>
         <span className="text-sky-400 dark:text-gray-500 text-xs">{isOpen ? '▼' : '▶'}</span>
       </button>
       {isOpen && (

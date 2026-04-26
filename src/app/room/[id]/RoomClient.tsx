@@ -134,6 +134,7 @@ export function RoomClient({ roomId }: { roomId: string }) {
   }
 
   function handleSelectVerdict(v: Card | "NO_CONSENSUS") {
+    setRoomState((prev) => (prev ? { ...prev, selectedVerdict: v } : prev));
     sendMsg({ type: "select_verdict", card: v });
   }
 
@@ -302,7 +303,7 @@ export function RoomClient({ roomId }: { roomId: string }) {
           </div>
         )}
 
-        <EventLog entries={roomState.eventLog} />
+        <EventLog entries={roomState.eventLog} history={roomState.history} />
       </main>
     </div>
   );
