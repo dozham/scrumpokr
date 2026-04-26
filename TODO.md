@@ -6,5 +6,4 @@
 - [ ] database persistence? yes I think so, as it doesn't make sense for people to always generate room links
 - [ ] anyone can set story
 - [ ] explicit leave room / kick participant feature
-- 
-
+- [ ] add an explicit event for 'selected verdict'
