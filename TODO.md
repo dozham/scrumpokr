@@ -2,8 +2,9 @@
 - [x] Let every participant reveal the votes; but show an event log in the room's event log
 - [ ] Instead of average show more useful statistics -- e.g., histogram of votes? most voted number?
 - [ ] Would it make sense to keep a record of top voters? e.g., static sessions which includes information from people whose vote was always closest to consensus or final vote
-- [ ] give an option to people to mention which vote was selected in the end
+- [x] give an option to people to mention which vote was selected in the end
 - [ ] database persistence? yes I think so, as it doesn't make sense for people to always generate room links
-- [ ] anyone can set story
+- [x] anyone can set story
 - [ ] explicit leave room / kick participant feature
-- [ ] add an explicit event for 'selected verdict'
+- [x] add an explicit event for 'selected verdict'
+- [ ] add confetti lib
