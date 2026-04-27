@@ -120,9 +120,21 @@ Single source of truth for all game state. Key fields:
 
 `reset()` derives `verdictSource` (`'natural'` / `'selected'` / `'none'`) before writing to history, so history icons are deterministic regardless of who was in the room at display time.
 
+## WebSocket Connections
+
+Every participant has their own WebSocket connection. Connections are scoped to a room — each `Room` has its own `participants` map, so a broadcast in one room never touches another.
+
+Connections are stored in two places:
+- **`room.participants`** — each `Participant` has a `ws: WebSocket` field; this is what `broadcastRoomStateAll()` iterates to send messages
+- **`wss.clients`** (built into the `ws` library) — a flat `Set` of every active connection across all rooms, used by the heartbeat to ping everyone
+
+A 25-second heartbeat pings all clients via `wss.clients`. Any client that hasn't replied with a `pong` since the last tick is terminated. This catches dead connections the OS hasn't noticed yet (e.g. phone went to sleep).
+
 ## Reconnection
 
-Each client stores a per-room `token` (16-char random string) in `localStorage`. On reconnect, the same token is sent in the WS URL. `Room.reconnectParticipant(token, newWs)` swaps the `ws` reference and closes the old socket, preserving host status, votes, and identity across page reloads.
+WebSocket connections are rotated on reconnect because a disconnected `WebSocket` object is dead — the browser always creates a new one. The *participant identity* is preserved across this via a `token` (16-char random string stored in `localStorage` per room).
+
+On reconnect, the client sends the same token in the WS URL. `Room.reconnectParticipant(token, newWs)` swaps `participant.ws = newWs` so future broadcasts go to the live connection, and explicitly closes the old socket to clean it up even if the OS hasn't noticed it's dead.
 
 ## Frontend State
 
