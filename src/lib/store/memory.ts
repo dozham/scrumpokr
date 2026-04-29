@@ -22,6 +22,7 @@ export class InMemoryAdapter implements RoomStoreAdapter {
 
   async deleteRoom(id: string): Promise<void> {
     this.rooms.delete(id)
+    this.emitter.removeAllListeners(id)
   }
 
   async publish(roomId: string, state: StoredRoomState): Promise<void> {
