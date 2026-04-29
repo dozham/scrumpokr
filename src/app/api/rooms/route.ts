@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createRoom } from '@/lib/registry'
+import { nanoid } from 'nanoid'
+import { getAdapter } from '@/lib/store'
+import { createRoom } from '@/lib/roomFns'
 import type { Card, DeckType } from '@/lib/types'
 
 const VALID_DECKS: DeckType[] = ['fibonacci', 'powers-of-2', 'tshirt', 'custom']
@@ -32,10 +34,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Custom deck requires customCards' }, { status: 400 })
   }
 
-  const room = createRoom(
+  const state = createRoom(
+    nanoid(8),
     deck as DeckType,
     customCards as Card[] | undefined,
-    !!hostOnlyReveal
+    !!hostOnlyReveal,
   )
-  return NextResponse.json({ roomId: room.id })
+  await getAdapter().writeRoom(state.id, state)
+  return NextResponse.json({ roomId: state.id })
 }
