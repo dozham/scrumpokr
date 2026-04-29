@@ -16,21 +16,22 @@ npx tsc --noEmit   # Type-check without emitting
 
 To run a single test file:
 ```bash
-npx vitest run src/__tests__/room.test.ts
+npx vitest run src/__tests__/roomFns.test.ts
 ```
 
 ## Architecture
 
 See [`docs/architecture.md`](docs/architecture.md) for a full description with Mermaid diagrams covering:
-- System overview (HTTP server, Next.js, WebSocket, Room registry)
+- System overview (HTTP server, Next.js, WebSocket, store adapter)
 - WebSocket message flow (sequence diagram)
-- `Room` class fields
+- `StoredRoomState` fields
 - Reconnection model
 - Frontend state ownership
 
 ### Key points
 
 - `npm run dev` is `tsx watch server.ts`, **not** `next dev`. The custom server attaches WebSockets to the same HTTP port as Next.js.
-- All room state is in-memory (`globalThis.__scrumpokrRooms`). The `globalThis` store is necessary because Turbopack isolates the API route module from `server.ts`.
-- After every mutation, `broadcastRoomStateAll()` sends a full personalised `room_state` snapshot to every connected participant. Clients replace their entire local state on receipt.
+- Room state is stored via `getAdapter()` (`src/lib/store/index.ts`). The adapter is a `globalThis.__scrumpokrAdapter` singleton — the `globalThis` trick is necessary because Turbopack isolates the API route module from `server.ts`. Default is `InMemoryAdapter`; set `ROOM_STORE_ADAPTER=redis` + `REDIS_URL` to use Redis.
+- Room mutations are pure functions in `src/lib/roomFns.ts` (take/return `StoredRoomState`). WebSocket references are kept in a per-instance `roomConnections` map in `handler.ts` and never serialized.
+- After every mutation, `handler.ts` writes the new state to the adapter and calls `adapter.publish()`. All subscribed instances receive the state and call `broadcastToLocalClients()`, sending a personalised `room_state` snapshot to each local WebSocket.
 - Tests cover server-side logic only (`src/__tests__/`). There are no component tests.
