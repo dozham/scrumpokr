@@ -79,7 +79,7 @@ export function attachWebSocket(server: Server): void {
     const reconnected = reconnectParticipant(state, token)
     if (reconnected) {
       state = reconnected
-      participantId = existingParticipantId
+      participantId = existingParticipantId!
       isReconnect = true
     } else {
       const result = addParticipant(state, name, role, token)
@@ -142,7 +142,7 @@ export function attachWebSocket(server: Server): void {
           break
         }
         case 'reveal': {
-          if (current.hostOnlyReveal && !participant.isHost) break
+          if (current.hostOnlyReveal && !participant.isHost) return
           const next = reveal(current, participant.name)
           await adapter.writeRoom(roomId, next)
           broadcastLocalMsg(roomId, { type: 'votes_revealed', votes: next.votes })
