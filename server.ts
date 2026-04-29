@@ -1,7 +1,7 @@
 import { createServer } from 'http'
 import next from 'next'
 import { attachWebSocket } from './src/ws/handler'
-import { startCleanup } from './src/lib/registry'
+import { getAdapter } from './src/lib/store'
 
 const dev = process.env.NODE_ENV !== 'production'
 const port = parseInt(process.env.PORT ?? '8080', 10)
@@ -13,7 +13,7 @@ app.prepare().then(() => {
   const server = createServer((req, res) => handle(req, res))
 
   attachWebSocket(server)
-  startCleanup()
+  getAdapter().startCleanup()
 
   server.listen(port, () => {
     console.log(`> Ready on http://localhost:${port}`)

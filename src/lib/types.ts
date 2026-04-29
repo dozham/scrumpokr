@@ -12,6 +12,14 @@ export interface Participant {
   token: string
 }
 
+export interface StoredParticipant {
+  id: string
+  name: string
+  role: 'voter' | 'spectator'
+  isHost: boolean
+  token: string
+}
+
 export interface ParticipantSnapshot {
   id: string
   name: string
