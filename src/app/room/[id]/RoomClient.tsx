@@ -138,6 +138,10 @@ export function RoomClient({ roomId }: { roomId: string }) {
     sendMsg({ type: "select_verdict", card: v });
   }
 
+  function handleEditRound(index: number, story: string, verdict: Card | "NO_CONSENSUS" | null) {
+    sendMsg({ type: "edit_round", index, story, verdict });
+  }
+
   function copyLink() {
     navigator.clipboard.writeText(window.location.href);
     setCopied(true);
@@ -299,6 +303,7 @@ export function RoomClient({ roomId }: { roomId: string }) {
             <VotingHistory
               history={roomState.history}
               participantNames={participantNames}
+              onEditRound={handleEditRound}
             />
           </div>
         )}
