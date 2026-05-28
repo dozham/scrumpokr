@@ -121,7 +121,9 @@ export function attachWebSocket(server: Server): void {
           break
         }
         case 'edit_round': {
+          console.log('[edit_round] received', { index: msg.index, story: msg.story, verdict: msg.verdict })
           room.editRound(msg.index, msg.story, msg.verdict)
+          console.log('[edit_round] history after edit:', JSON.stringify(room.history))
           broadcastRoomStateAll(room)
           break
         }

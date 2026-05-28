@@ -139,6 +139,7 @@ export function RoomClient({ roomId }: { roomId: string }) {
   }
 
   function handleEditRound(index: number, story: string, verdict: Card | "NO_CONSENSUS" | null) {
+    console.log("[edit_round] sending", { index, story, verdict, wsState: wsRef.current?.readyState });
     sendMsg({ type: "edit_round", index, story, verdict });
   }
 
