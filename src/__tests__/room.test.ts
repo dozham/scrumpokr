@@ -354,4 +354,79 @@ describe('Room', () => {
       expect(room.history[0].consensus).toBe(5)
     })
   })
+
+  describe('editRound', () => {
+    function roundedRoom() {
+      const room = new Room('fibonacci')
+      const p1 = room.addParticipant('Alice', 'voter', mockWs(), 'tok-1')
+      const p2 = room.addParticipant('Bob', 'voter', mockWs(), 'tok-2')
+      room.setStory('Original')
+      room.castVote(p1.id, 3)
+      room.castVote(p2.id, 5)
+      room.reveal('Alice')
+      room.reset('Alice')
+      return room
+    }
+
+    it('updates the story title of a past round', () => {
+      const room = roundedRoom()
+      room.editRound(0, 'New Title', null)
+      expect(room.history[0].story).toBe('New Title')
+    })
+
+    it('clears story when empty string is passed', () => {
+      const room = roundedRoom()
+      room.editRound(0, '', null)
+      expect(room.history[0].story).toBeUndefined()
+    })
+
+    it('sets consensus and verdictSource to selected when verdict is a Card', () => {
+      const room = roundedRoom()
+      room.editRound(0, 'Story', 5)
+      expect(room.history[0].consensus).toBe(5)
+      expect(room.history[0].verdictSource).toBe('selected')
+    })
+
+    it('accepts a custom string verdict', () => {
+      const room = roundedRoom()
+      room.editRound(0, 'Story', 'M')
+      expect(room.history[0].consensus).toBe('M')
+      expect(room.history[0].verdictSource).toBe('selected')
+    })
+
+    it('clears consensus and sets verdictSource to none when verdict is NO_CONSENSUS', () => {
+      const room = roundedRoom()
+      room.editRound(0, 'Story', 'NO_CONSENSUS')
+      expect(room.history[0].consensus).toBeUndefined()
+      expect(room.history[0].verdictSource).toBe('none')
+    })
+
+    it('clears consensus and sets verdictSource to none when verdict is null', () => {
+      const room = roundedRoom()
+      room.editRound(0, 'Story', null)
+      expect(room.history[0].consensus).toBeUndefined()
+      expect(room.history[0].verdictSource).toBe('none')
+    })
+
+    it('is a no-op when index is out of range', () => {
+      const room = roundedRoom()
+      expect(() => room.editRound(99, 'Story', null)).not.toThrow()
+      expect(room.history).toHaveLength(1)
+    })
+
+    it('does not affect other history entries', () => {
+      const room = roundedRoom()
+      // second round — Alice and Bob are still in the room (no votes cast),
+      // so natural consensus is not reached even though Carol votes 8.
+      // The key assertion is that editRound(0, …) does not mutate history[1].
+      const p = room.addParticipant('Carol', 'voter', mockWs(), 'tok-3')
+      room.castVote(p.id, 8)
+      room.reveal('Carol')
+      room.reset('Carol')
+      const history1Before = { ...room.history[1] }
+      room.editRound(0, 'Changed', 3)
+      expect(room.history[1].story).toBe(history1Before.story)
+      expect(room.history[1].consensus).toBe(history1Before.consensus)
+    })
+  })
 })

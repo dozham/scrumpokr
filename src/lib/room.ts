@@ -118,6 +118,20 @@ export class Room {
     this.lastActivityAt = Date.now()
   }
 
+  editRound(index: number, story: string, verdict: Card | 'NO_CONSENSUS' | null): void {
+    const round = this.history[index]
+    if (!round) return
+    round.story = story || undefined
+    if (verdict !== null && verdict !== 'NO_CONSENSUS') {
+      round.consensus = verdict
+      round.verdictSource = 'selected'
+    } else {
+      round.consensus = undefined
+      round.verdictSource = 'none'
+    }
+    this.lastActivityAt = Date.now()
+  }
+
   toParticipantSnapshots(): ParticipantSnapshot[] {
     return Array.from(this.participants.values()).map(p => ({
       id: p.id,
