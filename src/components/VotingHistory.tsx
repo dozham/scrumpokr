@@ -81,14 +81,17 @@ export function VotingHistory({ history, participantNames, onEditRound }: Props)
                   autoFocus
                   value={editState.story}
                   onChange={e => setEditState(s => ({ ...s, story: e.target.value }))}
-                  onKeyDown={e => e.key === 'Escape' && cancelEdit()}
+                  onKeyDown={e => {
+                    if (e.key === 'Escape') cancelEdit()
+                    if (e.key === 'Enter') saveEdit(i, editState)
+                  }}
                   placeholder="Story title"
                   className="w-full px-3 py-1.5 bg-white dark:bg-gray-900 border border-sky-300 dark:border-gray-700 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-gray-500 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 dark:focus:ring-indigo-500"
                 />
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs text-sky-600 dark:text-gray-400">Verdict:</span>
                   {uniqueVotedCards.map(v => {
-                    const active = String(editState.selectedChip) === String(v) && editState.customInput === ''
+                    const active = editState.selectedChip !== null && String(editState.selectedChip) === String(v) && editState.customInput === ''
                     return (
                       <button
                         key={String(v)}

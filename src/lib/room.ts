@@ -121,7 +121,7 @@ export class Room {
   editRound(index: number, story: string, verdict: Card | 'NO_CONSENSUS' | null): void {
     const round = this.history[index]
     if (!round) return
-    round.story = story || undefined
+    round.story = story.trim() || undefined
     if (verdict !== null && verdict !== 'NO_CONSENSUS') {
       round.consensus = verdict
       round.verdictSource = 'selected'

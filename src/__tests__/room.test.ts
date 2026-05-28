@@ -394,6 +394,20 @@ describe('Room', () => {
       expect(room.history[0].verdictSource).toBe('selected')
     })
 
+    it('transitions verdictSource from natural to selected when verdict is overridden', () => {
+      const room = new Room('fibonacci')
+      const p1 = room.addParticipant('Alice', 'voter', mockWs(), 'tok-1')
+      const p2 = room.addParticipant('Bob', 'voter', mockWs(), 'tok-2')
+      room.castVote(p1.id, 5)
+      room.castVote(p2.id, 5)
+      room.reveal('Alice')
+      room.reset('Alice')
+      expect(room.history[0].verdictSource).toBe('natural')
+      room.editRound(0, 'Story', 3)
+      expect(room.history[0].consensus).toBe(3)
+      expect(room.history[0].verdictSource).toBe('selected')
+    })
+
     it('clears consensus and sets verdictSource to none when verdict is NO_CONSENSUS', () => {
       const room = roundedRoom()
       room.editRound(0, 'Story', 'NO_CONSENSUS')
