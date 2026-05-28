@@ -120,6 +120,11 @@ export function attachWebSocket(server: Server): void {
           broadcastRoomStateAll(room)
           break
         }
+        case 'edit_round': {
+          room.editRound(msg.index, msg.story, msg.verdict)
+          broadcastRoomStateAll(room)
+          break
+        }
       }
     })
 
