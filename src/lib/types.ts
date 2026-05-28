@@ -40,6 +40,7 @@ export type ClientMessage =
   | { type: 'reset' }
   | { type: 'set_story'; title: string }
   | { type: 'select_verdict'; card: Card | 'NO_CONSENSUS' }
+  | { type: 'edit_round'; index: number; story: string; verdict: Card | 'NO_CONSENSUS' | null }
 
 export type ServerMessage =
   | {
