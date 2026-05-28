@@ -48,16 +48,16 @@ export function VotingHistory({ history, participantNames, onEditRound }: Props)
     setEditingIndex(null)
   }
 
-  function saveEdit(i: number) {
+  function saveEdit(i: number, state: EditState) {
     let verdict: Card | 'NO_CONSENSUS' | null
-    if (editState.customInput.trim() !== '') {
-      const raw = editState.customInput.trim()
+    if (state.customInput.trim() !== '') {
+      const raw = state.customInput.trim()
       const num = Number(raw)
       verdict = isNaN(num) ? raw : num
     } else {
-      verdict = editState.selectedChip
+      verdict = state.selectedChip
     }
-    onEditRound(i, editState.story, verdict)
+    onEditRound(i, state.story, verdict)
     setEditingIndex(null)
   }
 
@@ -88,7 +88,7 @@ export function VotingHistory({ history, participantNames, onEditRound }: Props)
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-xs text-sky-600 dark:text-gray-400">Verdict:</span>
                   {uniqueVotedCards.map(v => {
-                    const active = editState.selectedChip === v && editState.customInput === ''
+                    const active = String(editState.selectedChip) === String(v) && editState.customInput === ''
                     return (
                       <button
                         key={String(v)}
@@ -132,7 +132,7 @@ export function VotingHistory({ history, participantNames, onEditRound }: Props)
                   </button>
                   <button
                     type="button"
-                    onClick={() => saveEdit(i)}
+                    onClick={() => saveEdit(i, editState)}
                     className="px-3 py-1 text-xs rounded-lg bg-sky-500 dark:bg-indigo-600 hover:bg-sky-400 dark:hover:bg-indigo-500 text-white font-medium transition-colors"
                   >
                     Save
