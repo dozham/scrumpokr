@@ -19,10 +19,11 @@ export function JokeBox() {
   const [joke, setJoke] = useState<Joke | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [revealed, setRevealed] = useState(false)
 
   useEffect(() => {
     const controller = new AbortController()
-    loadJoke(controller.signal).then(setJoke).catch((e: unknown) => {
+    loadJoke(controller.signal).then(j => { setJoke(j); setRevealed(false) }).catch((e: unknown) => {
       if ((e as { name?: string }).name !== 'AbortError') setError(true)
     }).finally(() => setLoading(false))
     return () => controller.abort()
@@ -31,6 +32,7 @@ export function JokeBox() {
   async function handleRefresh() {
     setLoading(true)
     setError(false)
+    setRevealed(false)
     try {
       setJoke(await loadJoke())
     } catch {
@@ -61,9 +63,19 @@ export function JokeBox() {
         <p className="text-sm text-slate-400 dark:text-gray-500">Couldn&apos;t load a joke. Try refreshing.</p>
       )}
       {!loading && !error && joke && (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           <p className="text-sm text-slate-600 dark:text-gray-300 leading-relaxed">{joke.question}</p>
-          <p className="text-sm text-slate-500 dark:text-gray-400 italic leading-relaxed">{joke.answer}</p>
+          {revealed ? (
+            <p className="text-sm text-slate-500 dark:text-gray-400 italic leading-relaxed">{joke.answer}</p>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setRevealed(true)}
+              className="self-start text-xs text-slate-400 dark:text-gray-500 hover:text-slate-600 dark:hover:text-gray-300 underline underline-offset-2 transition-colors"
+            >
+              reveal answer
+            </button>
+          )}
         </div>
       )}
     </div>
