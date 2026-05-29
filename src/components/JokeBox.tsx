@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react'
 
+type Joke = { question: string; answer: string }
+
 export function JokeBox() {
-  const [joke, setJoke] = useState<string | null>(null)
+  const [joke, setJoke] = useState<Joke | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
@@ -11,12 +13,12 @@ export function JokeBox() {
     setLoading(true)
     setError(false)
     try {
-      const res = await fetch('https://teehee.dev/', {
+      const res = await fetch('https://teehee.dev/api/joke', {
         headers: { Accept: 'application/json' },
       })
       if (!res.ok) throw new Error()
       const data = await res.json()
-      setJoke(data.joke)
+      setJoke({ question: data.question, answer: data.answer })
     } catch {
       setError(true)
     } finally {
@@ -46,7 +48,10 @@ export function JokeBox() {
         <p className="text-sm text-slate-400 dark:text-gray-500">Couldn't load a joke. Try refreshing.</p>
       )}
       {!loading && !error && joke && (
-        <p className="text-sm text-slate-600 dark:text-gray-300 leading-relaxed">{joke}</p>
+        <div className="flex flex-col gap-2">
+          <p className="text-sm text-slate-600 dark:text-gray-300 leading-relaxed">{joke.question}</p>
+          <p className="text-sm text-slate-500 dark:text-gray-400 italic leading-relaxed">{joke.answer}</p>
+        </div>
       )}
     </div>
   )
