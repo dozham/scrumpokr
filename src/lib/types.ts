@@ -41,6 +41,7 @@ export type ClientMessage =
   | { type: 'set_story'; title: string }
   | { type: 'select_verdict'; card: Card | 'NO_CONSENSUS' }
   | { type: 'edit_round'; index: number; story: string; verdict: Card | 'NO_CONSENSUS' | null }
+  | { type: 'request_joke' }
 
 export type ServerMessage =
   | {
@@ -56,6 +57,7 @@ export type ServerMessage =
       eventLog: EventLogEntry[]
       yourId: string
       selectedVerdict?: Card | 'NO_CONSENSUS'
+      joke: { question: string; answer: string } | null
     }
   | { type: 'participant_joined'; id: string; name: string; role: 'voter' | 'spectator' }
   | { type: 'vote_cast'; participantId: string }

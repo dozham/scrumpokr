@@ -17,6 +17,7 @@ export class Room {
   eventLog: EventLogEntry[] = []
   readonly createdAt: number
   lastActivityAt: number
+  joke: { question: string; answer: string } | null = null
 
   constructor(deck: DeckType, customCards?: Card[], hostOnlyReveal = false) {
     this.id = nanoid(8)
