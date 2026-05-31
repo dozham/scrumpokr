@@ -174,5 +174,6 @@ function buildRoomState(room: Room, yourId: string): Extract<ServerMessage, { ty
     eventLog: room.eventLog,
     yourId,
     selectedVerdict: room.selectedVerdict,
+    joke: room.joke,
   }
 }
