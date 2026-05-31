@@ -43,9 +43,9 @@ export function JokeBox() {
   }
 
   return (
-    <div className="w-full max-w-xs p-6 bg-white dark:bg-gray-900 rounded-2xl shadow border border-sky-100 dark:border-gray-800 flex flex-col gap-3">
+    <div className="w-full p-6 bg-white dark:bg-gray-900 rounded-2xl shadow border border-sky-100 dark:border-gray-800 flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-slate-400 dark:text-gray-500">😄 Joke of the moment</span>
+        <span className="text-xs font-medium text-slate-400 dark:text-gray-500">Joke&apos;s on me</span>
         <button
           type="button"
           onClick={handleRefresh}

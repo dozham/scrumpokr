@@ -61,8 +61,8 @@ export default function HomePage() {
       <div className="fixed top-3 right-4">
         <ThemeToggle />
       </div>
-      <div className="flex flex-col md:flex-row items-center md:items-start gap-6 w-full max-w-2xl">
-        <div className="w-full max-w-md p-8 bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-sky-200 dark:border-gray-800">
+      <div className="flex flex-col items-center gap-4 w-full max-w-md">
+        <div className="w-full p-8 bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-sky-200 dark:border-gray-800">
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">🃏 ScrumPokr</h1>
           <p className="text-slate-500 dark:text-gray-400 mb-8">Real-time planning poker for agile teams.</p>
 
