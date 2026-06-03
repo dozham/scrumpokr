@@ -43,6 +43,7 @@ export function JokeBox({ joke: controlledJoke, onRefresh }: JokeBoxProps = {}) 
   async function handleStandaloneRefresh() {
     setStandaloneLoading(true)
     setStandaloneError(false)
+    setRevealedForQuestion(null)
     try {
       setStandaloneJoke(await loadJoke())
     } catch {
