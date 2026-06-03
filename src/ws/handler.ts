@@ -4,6 +4,7 @@ import type { IncomingMessage } from 'http'
 import { getRoom } from '@/lib/registry'
 import type { ClientMessage, ServerMessage } from '@/lib/types'
 import type { Room } from '@/lib/room'
+import { fetchJokeForRoom } from '@/lib/fetchJoke'
 
 const HEARTBEAT_INTERVAL_MS = 25_000
 
@@ -125,6 +126,10 @@ export function attachWebSocket(server: Server): void {
           room.editRound(msg.index, msg.story, msg.verdict)
           console.log('[edit_round] history after edit:', JSON.stringify(room.history))
           broadcastRoomStateAll(room)
+          break
+        }
+        case 'request_joke': {
+          fetchJokeForRoom(room).then(() => broadcastRoomStateAll(room)).catch(() => {})
           break
         }
       }

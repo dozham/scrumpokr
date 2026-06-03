@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createRoom } from '@/lib/registry'
 import type { Card, DeckType } from '@/lib/types'
+import { fetchJokeForRoom } from '@/lib/fetchJoke'
 
 const VALID_DECKS: DeckType[] = ['fibonacci', 'powers-of-2', 'tshirt', 'custom']
 
@@ -37,5 +38,6 @@ export async function POST(req: NextRequest) {
     customCards as Card[] | undefined,
     !!hostOnlyReveal
   )
+  void fetchJokeForRoom(room)
   return NextResponse.json({ roomId: room.id })
 }
