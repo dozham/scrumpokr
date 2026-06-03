@@ -15,32 +15,48 @@ async function loadJoke(signal?: AbortSignal): Promise<Joke> {
   return { question: data.question, answer: data.answer }
 }
 
-export function JokeBox() {
-  const [joke, setJoke] = useState<Joke | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
-  const [revealed, setRevealed] = useState(false)
+interface JokeBoxProps {
+  joke?: Joke | null
+  onRefresh?: () => void
+}
+
+export function JokeBox({ joke: controlledJoke, onRefresh }: JokeBoxProps = {}) {
+  const controlled = onRefresh !== undefined
+
+  const [standaloneJoke, setStandaloneJoke] = useState<Joke | null>(null)
+  const [standaloneLoading, setStandaloneLoading] = useState(true)
+  const [standaloneError, setStandaloneError] = useState(false)
+  const [revealedForQuestion, setRevealedForQuestion] = useState<string | null>(null)
 
   useEffect(() => {
+    if (controlled) return
     const controller = new AbortController()
-    loadJoke(controller.signal).then(j => { setJoke(j); setRevealed(false) }).catch((e: unknown) => {
-      if ((e as { name?: string }).name !== 'AbortError') setError(true)
-    }).finally(() => setLoading(false))
+    loadJoke(controller.signal)
+      .then(j => setStandaloneJoke(j))
+      .catch((e: unknown) => {
+        if ((e as { name?: string }).name !== 'AbortError') setStandaloneError(true)
+      })
+      .finally(() => setStandaloneLoading(false))
     return () => controller.abort()
-  }, [])
+  }, [controlled])
 
-  async function handleRefresh() {
-    setLoading(true)
-    setError(false)
-    setRevealed(false)
+  async function handleStandaloneRefresh() {
+    setStandaloneLoading(true)
+    setStandaloneError(false)
     try {
-      setJoke(await loadJoke())
+      setStandaloneJoke(await loadJoke())
     } catch {
-      setError(true)
+      setStandaloneError(true)
     } finally {
-      setLoading(false)
+      setStandaloneLoading(false)
     }
   }
+
+  const joke = controlled ? (controlledJoke ?? null) : standaloneJoke
+  const loading = controlled ? false : standaloneLoading
+  const error = controlled ? false : standaloneError
+  const handleRefresh = controlled ? onRefresh : handleStandaloneRefresh
+  const revealed = joke != null && revealedForQuestion === joke.question
 
   return (
     <div className="w-full p-6 bg-white dark:bg-gray-900 rounded-2xl shadow border border-sky-100 dark:border-gray-800 flex flex-col gap-3">
@@ -62,6 +78,9 @@ export function JokeBox() {
       {!loading && error && (
         <p className="text-sm text-slate-400 dark:text-gray-500">Couldn&apos;t load a joke. Try refreshing.</p>
       )}
+      {!loading && !error && !joke && (
+        <p className="text-sm text-slate-400 dark:text-gray-500">No joke loaded yet.</p>
+      )}
       {!loading && !error && joke && (
         <div className="flex flex-col gap-3">
           <p className="text-sm text-slate-600 dark:text-gray-300 leading-relaxed">{joke.question}</p>
@@ -70,7 +89,7 @@ export function JokeBox() {
           ) : (
             <button
               type="button"
-              onClick={() => setRevealed(true)}
+              onClick={() => setRevealedForQuestion(joke.question)}
               className="self-start text-xs text-slate-400 dark:text-gray-500 hover:text-slate-600 dark:hover:text-gray-300 underline underline-offset-2 transition-colors"
             >
               reveal answer
