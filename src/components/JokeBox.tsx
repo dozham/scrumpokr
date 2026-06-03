@@ -28,6 +28,15 @@ export function JokeBox({ joke: controlledJoke, onRefresh }: JokeBoxProps = {}) 
   const [standaloneError, setStandaloneError] = useState(false)
   const [revealedForQuestion, setRevealedForQuestion] = useState<string | null>(null)
 
+  const [pendingRefresh, setPendingRefresh] = useState(false)
+  const [prevControlledJoke, setPrevControlledJoke] = useState<Joke | null | undefined>(controlledJoke)
+
+  // Derived state: clear pendingRefresh when controlledJoke changes
+  if (controlled && prevControlledJoke !== controlledJoke) {
+    setPrevControlledJoke(controlledJoke)
+    if (pendingRefresh) setPendingRefresh(false)
+  }
+
   useEffect(() => {
     if (controlled) return
     const controller = new AbortController()
@@ -54,9 +63,11 @@ export function JokeBox({ joke: controlledJoke, onRefresh }: JokeBoxProps = {}) 
   }
 
   const joke = controlled ? (controlledJoke ?? null) : standaloneJoke
-  const loading = controlled ? false : standaloneLoading
+  const loading = controlled ? pendingRefresh : standaloneLoading
   const error = controlled ? false : standaloneError
-  const handleRefresh = controlled ? onRefresh : handleStandaloneRefresh
+  const handleRefresh = controlled
+    ? () => { setPendingRefresh(true); onRefresh!() }
+    : handleStandaloneRefresh
   const revealed = joke != null && revealedForQuestion === joke.question
 
   return (

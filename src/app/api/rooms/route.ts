@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
     customCards as Card[] | undefined,
     !!hostOnlyReveal
   )
+  room.lastJokeFetchAt = Date.now()
   void fetchJokeForRoom(room)
   return NextResponse.json({ roomId: room.id })
 }
