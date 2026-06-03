@@ -129,6 +129,8 @@ export function attachWebSocket(server: Server): void {
           break
         }
         case 'request_joke': {
+          if (Date.now() - room.lastJokeFetchAt < 10_000) break
+          room.lastJokeFetchAt = Date.now()
           fetchJokeForRoom(room).then(() => broadcastRoomStateAll(room)).catch(() => {})
           break
         }

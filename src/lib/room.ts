@@ -18,6 +18,7 @@ export class Room {
   readonly createdAt: number
   lastActivityAt: number
   joke: { question: string; answer: string } | null = null
+  lastJokeFetchAt = 0
 
   constructor(deck: DeckType, customCards?: Card[], hostOnlyReveal = false) {
     this.id = nanoid(8)
