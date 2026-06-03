@@ -20,6 +20,7 @@ import { ParticipantGrid } from "@/components/ParticipantGrid";
 import { ResultsSummary } from "@/components/ResultsSummary";
 import { VotingHistory } from "@/components/VotingHistory";
 import { EventLog } from "@/components/EventLog";
+import { JokeBox } from "@/components/JokeBox";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface RoomState {
@@ -34,6 +35,7 @@ interface RoomState {
   eventLog: EventLogEntry[];
   yourId: string;
   selectedVerdict?: Card | "NO_CONSENSUS";
+  joke: { question: string; answer: string } | null;
 }
 
 export function RoomClient({ roomId }: { roomId: string }) {
@@ -141,6 +143,10 @@ export function RoomClient({ roomId }: { roomId: string }) {
   function handleEditRound(index: number, story: string, verdict: Card | "NO_CONSENSUS" | null) {
     console.log("[edit_round] sending", { index, story, verdict, wsState: wsRef.current?.readyState });
     sendMsg({ type: "edit_round", index, story, verdict });
+  }
+
+  function handleRequestJoke() {
+    sendMsg({ type: "request_joke" });
   }
 
   function copyLink() {
@@ -310,6 +316,7 @@ export function RoomClient({ roomId }: { roomId: string }) {
         )}
 
         <EventLog entries={roomState.eventLog} history={roomState.history} />
+        <JokeBox joke={roomState.joke} onRefresh={handleRequestJoke} />
       </main>
     </div>
   );
